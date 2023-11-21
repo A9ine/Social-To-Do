@@ -19,7 +19,8 @@
     pip3 install flask
     ```
 3. **Setting Up the Database**:
-    Before running the application for the first time, ensure the SQLite database `pointsTracker.sqlite` is set up and the `transactions` table is created. Do so with:
+    Before running the application for the first time, ensure the SQLite database `social-to-do.sqlite` is set up is created. 
+    * Make sure you are in the api directory
     ```
     python3 database/db.py
     ```
