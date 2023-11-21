@@ -71,15 +71,34 @@ Below are the details of the API endpoints including the URL, method, data param
   - **Code**: 500 INTERNAL SERVER ERROR
   - **Content**: `{ "error": "Database error occurred." }`
 
-### Get Balance (Placeholder)
+### Get Verification Code
 
-- **URL**: `/balance`
-- **Method**: `GET`
+- **URL**: `/getVerification`
+- **Method**: `POST`
+- **Data Params**:
+  - `email`: Email address of the user to send the verification code.
 - **Success Response**:
   - **Code**: 200 OK
-  - **Content**: `{ "payer": { "payer_name": balance } }`
+  - **Content**: `{ "message": "Verification email sent successfully" }`
 - **Error Response**:
   - **Code**: 500 INTERNAL SERVER ERROR
   - **Content**: `{ "error": "Database error occurred." }`
 
-**Note**: It's recommended to use the `POST` method for the login endpoint instead of `GET` to ensure that credentials are not exposed in URLs or server logs.
+### Change Password
+
+- **URL**: `/changePassword`
+- **Method**: `POST`
+- **Data Params**:
+  - `email`: Email address of the user.
+  - `new_password`: New password to set for the user.
+  - `verification_code`: Verification code sent to the user's email.
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**: `{ "success": "Password updated successfully" }`
+- **Error Response**:
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "Email, new password, and verification code are required." }`
+  - **Code**: 401 UNAUTHORIZED
+  - **Content**: `{ "error": "Invalid email or verification code." }`
+  - **Code**: 500 INTERNAL SERVER ERROR
+  - **Content**: `{ "error": "Database error occurred." }`
