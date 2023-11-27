@@ -109,8 +109,6 @@ def sendEmail():
 
     cursor.execute("SELECT user_id FROM users WHERE email = ?", (email,))
     user_id = cursor.fetchone()
-    print(email)
-    print(user_id)
 
     # Update or insert verification code in the database
     if user_id:
@@ -481,7 +479,6 @@ def startChat():
     group_name = data.get('group_name')
     created_by = data.get('created_by')
     members = data.get('members') # list of members
-    print(members)
 
     if not group_name or not created_by or not members:
         return jsonify({"error": "Missing Info"}), 400
@@ -499,7 +496,6 @@ def startChat():
     user_ids = []
 
     for username in members:
-        print("i am:", username)
         cursor.execute("SELECT user_id FROM users WHERE username = ?",(username,))
         user_id_record = cursor.fetchone()
         

@@ -102,3 +102,112 @@ Below are the details of the API endpoints including the URL, method, data param
   - **Content**: `{ "error": "Invalid email or verification code." }`
   - **Code**: 500 INTERNAL SERVER ERROR
   - **Content**: `{ "error": "Database error occurred." }`
+  
+### Add Friend
+
+- **URL**: `/addFriend`
+- **Method**: `POST`
+- **Data Params**:
+  - `user1`: The username of the first user.
+  - `user2`: The username of the second user.
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**: `{ "message": "Friendship added successfully" }`
+- **Error Response**:
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "2 users are required." }`
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "One or more of the users do not exist" }`
+  - **Code**: 409 CONFLICT
+  - **Content**: `{ "error": "Friendship Already Exists" }`
+
+### Delete Friend
+
+- **URL**: `/deleteFriend`
+- **Method**: `POST`
+- **Data Params**:
+  - `user1`: The username of the first user.
+  - `user2`: The username of the second user.
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**: `{ "message": "Friendship deleted successfully" }`
+- **Error Response**:
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "2 users are required." }`
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "One or more of the users do not exist" }`
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "Friendship Does Not Exist" }`
+
+### Get Friends
+
+- **URL**: `/getFriends`
+- **Method**: `GET`
+- **URL Params**:
+  - `username`: The username of the user whose friends list is to be retrieved.
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**: `{ "friends": [ { "friend_id": 12, "friend_username": "john_doe" }, ... ] }`
+- **Error Response**:
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "User Does Not Exist" }`
+
+### Add Task
+
+- **URL**: `/addTask`
+- **Method**: `POST`
+- **Data Params**:
+  - `username`: The username of the user to whom the task belongs.
+  - `task`: The description of the task.
+  - `due_date`: The due date for the task.
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**: `{ "message": "Task added successfully" }`
+- **Error Response**:
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "All fields need to be filled" }`
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "User Does Not Exist" }`
+
+### Mark Task as Done
+
+- **URL**: `/markTaskAsDone`
+- **Method**: `POST`
+- **Data Params**:
+  - `task_id`: The ID of the task to be marked as done.
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**: `{ "message": "Task marked as done successfully" }`
+- **Error Response**:
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "Task Does Not Exist" }`
+
+### Get All Tasks
+
+- **URL**: `/getAllTasks`
+- **Method**: `GET`
+- **URL Params**:
+  - `username`: The username of the user whose tasks are to be retrieved.
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**: `{ "tasks": [ { "task_id": 10, "task_description": "Finish report", ... }, ... ] }`
+- **Error Response**:
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "User Does Not Exist" }`
+
+### Send Chat
+
+- **URL**: `/sendChat`
+- **Method**: `POST`
+- **Data Params**:
+  - `username`: The username of the user sending the message.
+  - `group_id`: The ID of the group to which the message is sent.
+  - `message`: The content of the chat message.
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**: `{ "message": "Chat Sent Successfully" }`
+- **Error Response**:
+  - **Code**: 400 BAD REQUEST
+  - **Content**: `{ "error": "Missing Data" }`
+  - **Code**: 400 BAD REQUEST
+  - **
