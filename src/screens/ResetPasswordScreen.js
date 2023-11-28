@@ -1,3 +1,6 @@
+import React from 'react';
+import { Text } from 'react-native';
+
 export default function ResetPasswordScreen() {
-    return( <Text>Need to do</Text>)
+    return <Text>Reset Password Screen - To be implemented</Text>;
 }
