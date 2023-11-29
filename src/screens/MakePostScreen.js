@@ -126,12 +126,18 @@ const MakePostScreen = ({ navigation }) => {
             </View>
           )}
           <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-          <Button title="Upload Post" onPress={uploadImage} />
+          <TouchableOpacity style={styles.button} onPress={uploadImage}>
+            <Text style={styles.buttonText}>Upload Post</Text>
+          </TouchableOpacity>
         </>
       ) : (
         <>
-          <Button title="Take Picture" onPress={handleTakePicture} />
-          <Button title="Browse Files" onPress={handleBrowseFiles} />
+          <TouchableOpacity style={styles.button} onPress={handleTakePicture}>
+            <Text style={styles.buttonText}>Take Picture</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleBrowseFiles}>
+            <Text style={styles.buttonText}>Browse Files</Text>
+          </TouchableOpacity>
         </>
       )}
     </View>
@@ -139,28 +145,43 @@ const MakePostScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  pickerContainer: {
-    height: 50,
-    width: '100%',
-    marginBottom: 20,
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 4,
-  },
-  picker: {
-    width: '100%',
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F3F3F7', // Light background color
+  },
+  pickerContainer: {
+    height: 50,
+    width: '80%',
+    marginBottom: 20,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#8A2BE2', // Purple border
+    borderRadius: 4,
+  },
+  picker: {
+    width: '100%',
   },
   imagePreview: {
     width: 300,
     height: 300,
     marginBottom: 20,
     resizeMode: 'contain',
+    borderWidth: 1,
+    borderColor: '#8A2BE2', // Purple border for image preview
+  },
+  button: {
+    backgroundColor: '#8A2BE2', // Purple color for the button
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+    width: 200,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
