@@ -7,6 +7,8 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import MakePostScreen from './src/screens/MakePostScreen';
+import TaskScreen from './src/screens/TaskScreen';
+import AddTaskScreen from './src/screens/AddTaskScreen';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +21,8 @@ export default function App() {
         <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
         <Stack.Screen name="MakePostScreen" component={MakePostScreen} />
+        <Stack.Screen name="TaskScreen" component={TaskScreen} />
+        <Stack.Screen name="AddTaskScreen" component={AddTaskScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
