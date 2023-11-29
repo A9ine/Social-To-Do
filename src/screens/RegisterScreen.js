@@ -8,9 +8,8 @@ import Background from '../components/Background';
 import { Text } from 'react-native-paper';
 import Logo from '../components/Logo';
 
-
-
-const RegisterScreen = () => {
+// Add navigation prop to your component
+const RegisterScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -30,6 +29,8 @@ const RegisterScreen = () => {
       // Check for a successful response (status code 200)
       if (response.status === 200) {
         Alert.alert('Success', 'Registration successful!');
+        // Navigate back to the previous screen
+        navigation.goBack();
       } else {
         // If the server responds with a status other than 200, it's treated as an error
         const errorText = response.data && response.data.error ? response.data.error : 'Registration failed with status: ' + response.status;
@@ -47,7 +48,6 @@ const RegisterScreen = () => {
     }
   };
   
-
   return (
     <Background>
       <Logo/>
@@ -84,6 +84,5 @@ const RegisterScreen = () => {
     </Background>
   );
 };
-
 
 export default RegisterScreen;
