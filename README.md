@@ -66,7 +66,7 @@ Below are the details of the API endpoints including the URL, method, data param
   - `password`: Password for the account.
 - **Success Response**:
   - **Code**: 200 OK
-  - **Content**: `{ "authenticated": true }` or `{ "authenticated": false }`
+  - **Content**: `{ "authenticated": true, "user_id": user_id, "username": username }` or `{ "authenticated": false }`
 - **Error Response**:
   - **Code**: 500 INTERNAL SERVER ERROR
   - **Content**: `{ "error": "Database error occurred." }`

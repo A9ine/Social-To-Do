@@ -33,8 +33,8 @@ def register():
     data = request.get_json()
     first_name = data.get('first_name')
     last_name = data.get('last_name')
-    email = data.get('email')
-    username = data.get('username')
+    email = data.get('email').lower()
+    username = data.get('username').lower()
     password = data.get('password')
 
     # Validate input fields
@@ -68,22 +68,19 @@ def login():
 
     # Get credentials from request arguments
     data = request.get_json()
-    username_or_email = data['username_or_email']
+    username_or_email = data['username_or_email'].lower()
     password = data['password']
 
-    if '@' in username_or_email and '.' in username_or_email:
-        field = 'email'
-    else:
-        field = 'username'
+    field = 'email' if '@' in username_or_email and '.' in username_or_email else 'username'
 
     try:
         # Query the database to find a user
-        cursor.execute(f"SELECT * FROM users WHERE {field} = ? AND password = ?", (username_or_email, password))
+        cursor.execute(f"SELECT user_id, username FROM users WHERE {field} = ? AND password = ?", (username_or_email, password))
         user = cursor.fetchone()
 
-        # Check if user was found and return appropriate response
         if user:
-            return jsonify({"authenticated": True}), 200
+            user_id, username = user
+            return jsonify({"authenticated": True, "user_id": user_id, "username": username}), 200
         else:
             return jsonify({"authenticated": False}), 200
     except sqlite3.Error as e:
@@ -93,12 +90,13 @@ def login():
         conn.close()
 
 
+
 @app.route('/getVerification', methods=['POST'])
 def sendEmail():
     conn = db_connection()
     cursor = conn.cursor()
     data = request.get_json()
-    email = data.get('email')
+    email = data.get('email').lower()
 
     # Generate verification code
     string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -160,7 +158,7 @@ def changePassword():
 
     # Get credentials from request arguments
     data = request.get_json()
-    email = data.get('email')
+    email = data.get('email').lower()
     new_password = data.get('new_password')
     verification_code = data.get('verification_code')
 
@@ -300,7 +298,7 @@ def addTask():
     conn = db_connection()
     cursor = conn.cursor()
     data = request.get_json()
-    user = data.get('username')
+    user = data.get('username').lower()
     task = data.get('task')
     due_date = data.get("due_date")
 
@@ -377,7 +375,7 @@ def getAllTasks():
     conn = db_connection()
     cursor = conn.cursor()
 
-    user = request.args.get('username')
+    user = request.args.get('username').lower()
     cursor.execute("SELECT user_id FROM users WHERE username = ?",(user,))
     user_id_record = cursor.fetchone()
     
@@ -409,7 +407,7 @@ def sendChat():
     cursor = conn.cursor()
 
     data = request.get_json()
-    username = data.get('username')
+    username = data.get('username').lower()
     group_id = data.get('group_id')
     message = data.get('message')
 
@@ -512,6 +510,7 @@ def startChat():
     conn.commit()
 
     return jsonify({"message": "Group chat started successfully", "group_id": group_id})
+
 
 # post 
 # retrieve post

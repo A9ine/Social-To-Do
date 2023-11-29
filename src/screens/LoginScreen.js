@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, StyleSheet, View, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import axios from 'axios';
@@ -8,10 +8,37 @@ import Header from '../components/Header';
 import Button from '../components/Button';
 import TextInput from '../components/TextInput';
 import { theme } from '../core/theme';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+ 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState({ value: '', error: '' });
   const [password, setPassword] = useState({ value: '', error: '' });
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const username = await AsyncStorage.getItem('username');
+        if (username) {
+          // If there is a username stored, navigate to the HomeScreen
+          navigation.navigate('HomeScreen');
+        }
+        // You might also want to check if a valid session token exists instead of just a username
+      } catch (e) {
+        console.error('Failed to fetch credentials', e);
+      }
+    };
+
+    checkLogin();
+  }, []);
+
+  const storeCredentials = async (username, userId) => {
+    try {
+      await AsyncStorage.setItem('username', username);
+      await AsyncStorage.setItem('user_id', userId.toString());
+    } catch (e) {
+      console.error('Storing credentials failed', e);
+    }
+  };
 
   const handleLogin = async () => {
     try {
@@ -20,9 +47,10 @@ export default function Login({ navigation }) {
         password: password.value,
       });
 
-      if (response.status === 200) {
+      if (response.data.authenticated) {
         Alert.alert('Success', 'Login successful!');
-        // Navigate to another screen if needed
+        await storeCredentials(response.data.username, response.data.user_id);
+        navigation.navigate('HomeScreen');
       } else {
         Alert.alert('Error', 'Login failed');
       }
