@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Button, Alert, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -32,12 +33,27 @@ const HomeScreen = ({ navigation }) => {
 
   const handleMakePost = async () => {
     try {
-      navigation.navigate('MakePostScreen');
+      const storedUsername = await AsyncStorage.getItem('username');
+      if (!storedUsername) {
+        Alert.alert('Error', 'Username not found');
+        return;
+      }
+  
+      const response = await axios.get('http://127.0.0.1:2323/getIncompletedTasks', {
+        params: { username: storedUsername }
+      });
+  
+      if (response.status === 200 && response.data.tasks.length > 0) {
+        navigation.navigate('MakePostScreen', { tasks: response.data.tasks });
+      } else {
+        Alert.alert('No Tasks', 'There are no incomplete tasks to post. Please add a task');
+      }
     } catch (e) {
-      Alert.alert('Error');
+      Alert.alert('Error', 'Failed to fetch tasks or navigate to post screen.');
       console.error('Error navigating to make post screen:', e);
     }
   };
+  
 
   return (
     <View style={styles.container}>
