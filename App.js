@@ -21,6 +21,9 @@ export default function App() {
         <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
         <Stack.Screen name="MakePostScreen" component={MakePostScreen} />
+        <Stack.Screen name="TaskScreen" component={TaskScreen} />
+        <Stack.Screen name="AddTaskScreen" component={AddTaskScreen} />
+        <Stack.Screen name="SettingScreen" component={SettingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
