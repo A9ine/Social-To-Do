@@ -56,6 +56,15 @@ const HomeScreen = ({ navigation }) => {
 
   const navigateToSettings = () => {
     navigation.navigate('SettingScreen'); //navigating to SettingScreen
+  }
+
+  const handleTask = async () => {
+    try {
+        navigation.navigate('TaskScreen');
+    } catch (e) {
+        Alert.alert('Error', 'Failed tonavigate to task screen.');
+        console.error('Error navigating to make post screen:', e);
+      }
   };
   
 
@@ -69,10 +78,11 @@ const HomeScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={handleMakePost}>
         <Text style={styles.buttonText}>Make Post</Text>
       </TouchableOpacity>
-
-      {/* New button for navigating to SettingScreen */}
       <TouchableOpacity style={styles.button} onPress={navigateToSettings}>
         <Text style={styles.buttonText}>Settings</Text>
+        </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleTask}>
+        <Text style={styles.buttonText}>Tasks</Text>
       </TouchableOpacity>
     </View>
   );
