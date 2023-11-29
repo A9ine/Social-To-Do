@@ -75,12 +75,12 @@ def login():
 
     try:
         # Query the database to find a user
-        cursor.execute(f"SELECT user_id, username FROM users WHERE {field} = ? AND password = ?", (username_or_email, password))
+        cursor.execute(f"SELECT user_id, username, first_name FROM users WHERE {field} = ? AND password = ?", (username_or_email, password))
         user = cursor.fetchone()
 
         if user:
-            user_id, username = user
-            return jsonify({"authenticated": True, "user_id": user_id, "username": username}), 200
+            user_id, username, first_name = user
+            return jsonify({"authenticated": True, "user_id": user_id, "username": username, "first_name": first_name}), 200
         else:
             return jsonify({"authenticated": False}), 200
     except sqlite3.Error as e:

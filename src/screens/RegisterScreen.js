@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, Text, StyleSheet } from 'react-native';
+import { View, Alert, StyleSheet } from 'react-native';
+import TextInput from '../components/TextInput';
+import Header from '../components/Header';
+import Button from '../components/Button';
 import axios from 'axios';
+import Background from '../components/Background';
+import { Text } from 'react-native-paper';
+import Logo from '../components/Logo';
+
+
 
 const RegisterScreen = () => {
   const [firstName, setFirstName] = useState('');
@@ -41,66 +49,41 @@ const RegisterScreen = () => {
   
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
+    <Background>
+      <Logo/>
       <TextInput
         placeholder="First Name"
         value={firstName}
         onChangeText={setFirstName}
-        style={styles.input}
       />
       <TextInput
         placeholder="Last Name"
         value={lastName}
         onChangeText={setLastName}
-        style={styles.input}
       />
       <TextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        style={styles.input}
         keyboardType="email-address"
       />
       <TextInput
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
-        style={styles.input}
       />
       <TextInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
-        style={styles.input}
         secureTextEntry
       />
-      <Button title="Register" onPress={handleRegister} />
-    </View>
+      <Button mode="contained" onPress={handleRegister}>
+        Register
+      </Button>
+    </Background>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center', // centers the form in the middle of the screen
-    backgroundColor: '#fff', // white background color
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
-    padding: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'blue',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-});
 
 export default RegisterScreen;

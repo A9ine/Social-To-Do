@@ -31,10 +31,11 @@ export default function Login({ navigation }) {
     checkLogin();
   }, []);
 
-  const storeCredentials = async (username, userId) => {
+  const storeCredentials = async (username, userId, first_name) => {
     try {
       await AsyncStorage.setItem('username', username);
       await AsyncStorage.setItem('user_id', userId.toString());
+      await AsyncStorage.setItem('first_name', first_name.toString());
     } catch (e) {
       console.error('Storing credentials failed', e);
     }
@@ -49,7 +50,7 @@ export default function Login({ navigation }) {
 
       if (response.data.authenticated) {
         Alert.alert('Success', 'Login successful!');
-        await storeCredentials(response.data.username, response.data.user_id);
+        await storeCredentials(response.data.username, response.data.user_id, response.data.first_name);
         navigation.navigate('HomeScreen');
       } else {
         Alert.alert('Error', 'Login failed');

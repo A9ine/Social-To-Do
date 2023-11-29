@@ -4,12 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
+  const [imageUri, setImageUri] = useState('');
 
   useEffect(() => {
-    // Fetch the username from AsyncStorage
     const getUsername = async () => {
       try {
-        const storedUsername = await AsyncStorage.getItem('username');
+        const storedUsername = await AsyncStorage.getItem('first_name');
         if (storedUsername) {
           setUsername(storedUsername);
         }
@@ -17,7 +17,7 @@ const HomeScreen = ({ navigation }) => {
         console.error('Failed to load username', e);
       }
     };
-
+  
     getUsername();
   }, []);
 
@@ -31,9 +31,19 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleMakePost = async () => {
+    try {
+      navigation.navigate('MakePostScreen');
+    } catch (e) {
+      Alert.alert('Error');
+      console.error('Error navigating to make post screen:', e);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>Hello {username}</Text>
+      <Button title="Make Post" onPress={handleMakePost} />
       <Button title="Sign Out" onPress={handleSignOut} />
     </View>
   );
