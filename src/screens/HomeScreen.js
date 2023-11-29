@@ -53,16 +53,26 @@ const HomeScreen = ({ navigation }) => {
       console.error('Error navigating to make post screen:', e);
     }
   };
+
+  const navigateToSettings = () => {
+    navigation.navigate('SettingScreen'); //navigating to SettingScreen
+  };
   
 
   return (
     <View style={styles.container}>
+      {/* Existing components */}
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
       <Text style={styles.greeting}>Hello {username}</Text>
       <TouchableOpacity style={styles.button} onPress={handleMakePost}>
         <Text style={styles.buttonText}>Make Post</Text>
+      </TouchableOpacity>
+
+      {/* New button for navigating to SettingScreen */}
+      <TouchableOpacity style={styles.button} onPress={navigateToSettings}>
+        <Text style={styles.buttonText}>Settings</Text>
       </TouchableOpacity>
     </View>
   );
