@@ -1,57 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import axios from 'axios';
 import { theme } from '../core/theme';
+import Background from '../components/Background';
+import Logo from '../components/Logo';
+import Header from '../components/Header';
+import Button from '../components/Button';
+import TextInput from '../components/TextInput';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#FAFAFA',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    color: theme.colors.primary,
-    textAlign: 'center',
-  },
-  input: {
-    height: 50,
-    borderColor: theme.colors.primary,
-    borderWidth: 2,
-    marginBottom: 20,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    fontSize: 18,
-    backgroundColor: '#FFFFFF',
-    color: '#333333',
-  },
-  buttonContainer: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-    shadowColor: '#4B0082',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  buttonText: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  message: {
-    textAlign: 'center',
-    color: theme.colors.primary,
-    marginTop: 15,
-    fontSize: 16,
-  },
-});
 
 function ResetPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -108,10 +64,9 @@ function ResetPasswordScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Reset Password</Text>
+    <Background>
+      <Logo/>
       <TextInput
-        style={styles.input}
         value={email}
         onChangeText={handleEmailChange}
         placeholder="Email"
@@ -119,23 +74,20 @@ function ResetPasswordScreen({ navigation }) {
         placeholderTextColor="#a9a9a9"
       />
       <TouchableOpacity 
-        style={styles.buttonContainer} 
         onPress={sendVerificationEmail}
         disabled={countdown > 0}
       >
-        <Text style={styles.buttonText}>
+        <Button mode="contained">
           {countdown > 0 ? `Wait ${countdown}s` : 'Send Verification Email'}
-        </Text>
+        </Button>
       </TouchableOpacity>
       <TextInput
-        style={styles.input}
         value={verificationCode}
         onChangeText={handleVerificationCodeChange}
         placeholder="Verification Code"
         placeholderTextColor="#a9a9a9"
       />
       <TextInput
-        style={styles.input}
         value={newPassword}
         onChangeText={handleNewPasswordChange}
         placeholder="New Password"
@@ -143,12 +95,11 @@ function ResetPasswordScreen({ navigation }) {
         placeholderTextColor="#a9a9a9"
       />
       <TouchableOpacity 
-        style={styles.buttonContainer} 
         onPress={changeUserPassword}
       >
-        <Text style={styles.buttonText}>Change Password</Text>
+        <Button mode="contained">Change Password</Button>
       </TouchableOpacity>
-    </View>
+    </Background>
   );
 }
 
