@@ -1,25 +1,60 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, Alert, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Button, Alert, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import SocialPost from '../components/SocialPost';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const getUsername = async () => {
+    const getUsernameAndFetchPosts = async () => {
       try {
-        const storedUsername = await AsyncStorage.getItem('first_name');
+        const storedUsername = await AsyncStorage.getItem('username');
         if (storedUsername) {
           setUsername(storedUsername);
+          // Now fetch posts using the retrieved username
+          const response = await axios.get(`http://127.0.0.1:2323/retrievePosts?username=${storedUsername}`);
+          if (response.status === 200) {
+            setPosts(response.data.posts);
+          }
+        } else {
+          console.error('No username found');
         }
       } catch (e) {
-        console.error('Failed to load username', e);
+        console.error('Failed to load username or fetch posts', e);
+        Alert.alert('Error', 'Failed to load username or fetch posts');
       }
     };
   
-    getUsername();
+    getUsernameAndFetchPosts();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const getUsernameAndFetchPosts = async () => {
+        try {
+          const storedUsername = await AsyncStorage.getItem('username');
+          if (storedUsername) {
+            setUsername(storedUsername);
+            const response = await axios.get(`http://127.0.0.1:2323/retrievePosts?username=${storedUsername}`);
+            if (response.status === 200) {
+              setPosts(response.data.posts);
+            }
+          } else {
+            console.error('No username found');
+          }
+        } catch (e) {
+          console.error('Failed to load username or fetch posts', e);
+          Alert.alert('Error', 'Failed to load username or fetch posts');
+        }
+      };
+      getUsernameAndFetchPosts();
+    }, [])
+  );
+  
 
   const handleSignOut = async () => {
     try {
@@ -70,20 +105,25 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Existing components */}
-      <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-        <Text style={styles.signOutText}>Sign Out</Text>
-      </TouchableOpacity>
-      <Text style={styles.greeting}>Hello {username}</Text>
-      <TouchableOpacity style={styles.button} onPress={handleMakePost}>
-        <Text style={styles.buttonText}>Make Post</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={navigateToSettings}>
-        <Text style={styles.buttonText}>Settings</Text>
+      <ScrollView style={styles.postsContainer}>
+        {posts.map((post, index) => (
+          <SocialPost username={username} pictureUrl={post.picture} text={post.content} />
+        ))}
+      </ScrollView>
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleMakePost}>
+          <Text style={styles.buttonText}>Make Post</Text>
         </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleTask}>
-        <Text style={styles.buttonText}>Tasks</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={navigateToSettings}>
+          <Text style={styles.buttonText}>Settings</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleTask}>
+          <Text style={styles.buttonText}>Tasks</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleSignOut}>
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -91,15 +131,22 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F3F3F7', // Light background color
+    backgroundColor: '#F3F3F7',
   },
-  greeting: {
-    fontSize: 24,
+  postsContainer: {
+    flex: 1,
+    marginTop: 20,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     marginBottom: 20,
-    fontWeight: 'bold',
-    color: '#4B3F72', // Darker purple for text
+  },
+  button: {
+    backgroundColor: '#8A2BE2',
+    padding: 10,
+    borderRadius: 5,
+    minWidth: 80,
   },
   button: {
     backgroundColor: '#8A2BE2', // Purple color for the button

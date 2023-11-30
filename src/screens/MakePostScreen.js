@@ -4,14 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import * as Camera from 'expo-camera';
 import { storage } from '../core/firebase'; // Import your Firebase storage
-import { ref, uploadBytes } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
 
 const MakePostScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState('');
   const [tasks, setTasks] = useState([]);
-  const [selectedTask, setSelectedTask] = useState();
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const fetchTasks = async () => {
     try {
@@ -20,8 +20,9 @@ const MakePostScreen = ({ navigation }) => {
         const response = await axios.get('http://127.0.0.1:2323/getIncompletedTasks', {
           params: { username }
         });
-        if (response.status === 200) {
+        if (response.status === 200 && response.data.tasks.length > 0) {
           setTasks(response.data.tasks);
+          setSelectedTask(response.data.tasks[0].task_id); // Set the first task as the selected one
         } else {
           Alert.alert('Error', 'Failed to fetch tasks');
         }
@@ -53,7 +54,7 @@ const MakePostScreen = ({ navigation }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.3,
     });
 
     handleImagePicked(result);
@@ -70,7 +71,7 @@ const MakePostScreen = ({ navigation }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.3,
     });
 
     handleImagePicked(result);
@@ -96,16 +97,35 @@ const MakePostScreen = ({ navigation }) => {
     try {
       const response = await fetch(imageUri);
       const blob = await response.blob();
-  
-      const imageRef = ref(storage, `images/${generateUUID()}.jpg`);
+      const uuid = generateUUID();
+      const imageRef = ref(storage, `images/${uuid}.jpg`);
+      
+      // Upload image to Firebase Storage
       await uploadBytes(imageRef, blob);
   
-      Alert.alert('Success', 'Image uploaded successfully');
+      // Get the download URL
+      const downloadURL = await getDownloadURL(imageRef);
+  
+      // Now make a POST request to your backend to store the post details
+      const username = await AsyncStorage.getItem('username');
+      const postResponse = await axios.post('http://127.0.0.1:2323/makePost', {
+        username: username,
+        url: downloadURL,
+        task: selectedTask,
+      });
+  
+      if (postResponse.status === 200) {
+        Alert.alert('Success', 'Post uploaded successfully');
+        navigation.navigate('HomeScreen')
+      } else {
+        Alert.alert('Error', 'Failed to upload post');
+      }
     } catch (e) {
       console.error('Upload error:', e);
       Alert.alert('Error', 'Upload failed');
     }
   };
+  
   
 
   return (
@@ -123,6 +143,7 @@ const MakePostScreen = ({ navigation }) => {
                   <Picker.Item key={task.task_id} label={task.task_description} value={task.task_id} />
                 ))}
               </Picker>
+
             </View>
           )}
           <Image source={{ uri: imageUri }} style={styles.imagePreview} />

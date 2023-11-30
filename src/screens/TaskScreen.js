@@ -3,35 +3,37 @@ import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 const TaskScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const username = await AsyncStorage.getItem('username');
-        if (username) {
-          const response = await axios.get('http://127.0.0.1:2323/getIncompletedTasks', {
-            params: { username }
-          });
-          if (response.status === 200) {
-            setTasks(response.data.tasks);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchTasks = async () => {
+        try {
+          const username = await AsyncStorage.getItem('username');
+          if (username) {
+            const response = await axios.get('http://127.0.0.1:2323/getIncompletedTasks', {
+              params: { username }
+            });
+            if (response.status === 200) {
+              setTasks(response.data.tasks);
+            } else {
+              Alert.alert('Error', 'Failed to fetch tasks');
+            }
           } else {
-            Alert.alert('Error', 'Failed to fetch tasks');
+            Alert.alert('Error', 'Username not found');
           }
-        } else {
-          Alert.alert('Error', 'Username not found');
+        } catch (error) {
+          console.error('Fetch tasks error:', error);
+          Alert.alert('Error', 'Failed to fetch tasks due to a network error');
         }
-      } catch (error) {
-        console.error('Fetch tasks error:', error);
-        Alert.alert('Error', 'Failed to fetch tasks due to a network error');
-      }
-    };
+      };
 
-    fetchTasks();
-  }, []);
-
+      fetchTasks();
+    }, [])
+  );
   const renderTask = ({ item }) => {
     return (
       <View style={styles.taskItem}>
