@@ -168,8 +168,8 @@ const styles = StyleSheet.create({
     height: 300,
     marginBottom: 20,
     resizeMode: 'contain',
-    borderWidth: 1,
-    borderColor: '#8A2BE2', // Purple border for image preview
+    //borderWidth: 1,
+    //borderColor: '#8A2BE2', // Purple border for image preview
   },
   button: {
     backgroundColor: '#8A2BE2', // Purple color for the button
