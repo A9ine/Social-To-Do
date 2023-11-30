@@ -512,8 +512,86 @@ def startChat():
     return jsonify({"message": "Group chat started successfully", "group_id": group_id})
 
 
-# post 
-# retrieve post
+# post
+@app.route('/makePost', methods=['POST'])
+def makePost():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+
+    url = data.get('url')
+    print(data.get('task'))
+    task = int(data.get('task'))
+    username = data.get('username').lower()
+
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id_record = cursor.fetchone()
+    
+    if not user_id_record:
+        return jsonify({"error": "User Does Not Exist"}), 400
+    user_id = user_id_record[0]
+
+    cursor.execute("SELECT task FROM tasks WHERE task_id = ?", (task,))
+
+    task_record = cursor.fetchone()
+    if not task_record:
+        return jsonify({"error": "Task Does Not Exist"}), 400
+    task_content = task_record[0]
+
+    # Insert the new post into the posts table
+    cursor.execute("""
+        INSERT INTO posts (user_id, content, picture, created_at, updated_at)
+        VALUES (?, ?, ?, datetime('now'), datetime('now'))
+    """, (user_id, f'{username} completed: {task_content}', url))
+
+    cursor.execute("UPDATE tasks SET completed = ? WHERE task_id = ?", (True, task))
+    conn.commit()
+    return jsonify({"message": "Post created successfully"}), 200
+
+
+@app.route('/retrievePosts', methods=['GET'])
+def retrievePosts():
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # Assuming the username is passed as a query parameter
+    username = request.args.get('username')
+    username = str(username).lower()
+
+    # First, get the user_id of the requesting user
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id_record = cursor.fetchone()
+
+    if not user_id_record:
+        return jsonify({"error": "User Does Not Exist"}), 400
+    user_id = user_id_record[0]
+
+    # Retrieve posts from the user and their friends
+    cursor.execute("""
+        SELECT p.post_id, p.content, p.picture, p.created_at, u.username
+        FROM posts p
+        JOIN users u ON p.user_id = u.user_id
+        LEFT JOIN friends f ON p.user_id = f.friend_id OR p.user_id = f.user_id
+        WHERE f.user_id = ? OR f.friend_id = ? OR p.user_id = ?
+        ORDER BY p.created_at DESC
+    """, (user_id, user_id, user_id))
+
+    posts = cursor.fetchall()
+
+    # Convert the posts to a list of dicts to jsonify the response properly
+    posts_list = [
+        {
+            'post_id': post[0],
+            'content': post[1],
+            'picture': post[2],
+            'created_at': post[3],
+            'author_username': post[4]
+        }
+        for post in posts
+    ]
+
+    return jsonify({"posts": posts_list}), 200
+
 
 
 if __name__ == '__main__':

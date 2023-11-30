@@ -87,6 +87,19 @@ create_chat_messages_table = """
     );
 """
 
+create_posts_table = """
+    CREATE TABLE IF NOT EXISTS posts (
+        post_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        picture TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+"""
+
+
 # Execute each SQL statement
 cursor.execute(create_users_table)
 cursor.execute(create_verification_codes_table)
@@ -95,6 +108,7 @@ cursor.execute(create_tasks_table)
 cursor.execute(create_groups_table)
 cursor.execute(create_group_members_table)
 cursor.execute(create_chat_messages_table)
+cursor.execute(create_posts_table)
 
 # Commit the changes and close the connection
 conn.commit()
