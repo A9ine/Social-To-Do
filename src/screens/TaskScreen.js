@@ -60,16 +60,42 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
+    backgroundColor: '#f3f3f9', // Light grey background for contrast with purple elements
   },
   taskItem: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
+    borderBottomColor: '#a29bfe', // Light purple for subtle separation of tasks
+    backgroundColor: '#f8f8ff', // Very light purple for task items
   },
   taskText: {
     fontSize: 18,
     marginBottom: 5,
+    color: '#6c5ce7', // Darker purple for task text for readability
+  },
+  button: {
+    backgroundColor: '#6c5ce7', // Dark purple for the button
+    color: '#ffffff', // White text for contrast on button
+    padding: 10,
+    borderRadius: 5,
+    textAlign: 'center',
+    margin: 10,
+  },
+  buttonText: {
+    color: '#ffffff', // White text on button
+    fontWeight: 'bold',
+  },
+  titleText: {
+    fontSize: 22,
+    color: '#6c5ce7', // Dark purple for titles
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  dueDateText: {
+    fontSize: 14,
+    color: '#a29bfe', // Light purple for less important information like due dates
   },
 });
+
 
 export default TaskScreen;
