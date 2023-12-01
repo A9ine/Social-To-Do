@@ -592,6 +592,43 @@ def retrievePosts():
 
     return jsonify({"posts": posts_list}), 200
 
+@app.route('/searchUser', methods=['GET'])
+def searchUser():
+    conn = db_connection()
+    cursor = conn.cursor()
+    query = request.args.get('query')
+    current_user_id = request.args.get('user_id')  # Assuming the user_id is being sent as a query parameter
+
+    # Ensure the current user_id is present
+    if not current_user_id:
+        return jsonify({"error": "Current user ID is required."}), 400
+
+    # Convert current_user_id to int to prevent SQL injection
+    try:
+        current_user_id = int(current_user_id)
+    except ValueError:
+        return jsonify({"error": "Invalid user ID."}), 400
+
+    # The SQL query to search for users, excluding the current user and their friends
+    search_query = """
+        SELECT u.user_id, u.username
+        FROM users u
+        WHERE u.username LIKE ?
+        AND u.user_id != ?
+        AND NOT EXISTS (
+            SELECT 1 FROM friends f
+            WHERE (f.user_id = u.user_id AND f.friend_id = ?)
+            OR (f.friend_id = u.user_id AND f.user_id = ?)
+        )
+    """
+
+    cursor.execute(search_query, ('%' + query + '%', current_user_id, current_user_id, current_user_id))
+    users = cursor.fetchall()
+    conn.close()
+
+    users_list = [{'user_id': user[0], 'username': user[1]} for user in users]
+
+    return jsonify({"users": users_list}), 200
 
 
 if __name__ == '__main__':

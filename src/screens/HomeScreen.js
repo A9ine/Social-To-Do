@@ -101,6 +101,15 @@ const HomeScreen = ({ navigation }) => {
         console.error('Error navigating to make post screen:', e);
       }
   };
+
+  const handleFriends = async () => {
+    try {
+        navigation.navigate('FriendsScreen');
+    } catch (e) {
+        Alert.alert('Error', 'Failed tonavigate to friend screen.');
+        console.error('Error navigating to make friend screen:', e);
+      }
+  };
   
 
   return (
@@ -119,6 +128,9 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleTask}>
           <Text style={styles.buttonText}>Tasks</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleFriends}>
+          <Text style={styles.buttonText}>Friends</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleSignOut}>
           <Text style={styles.buttonText}>Sign Out</Text>
