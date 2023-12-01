@@ -9,6 +9,8 @@ import MakePostScreen from './src/screens/MakePostScreen';
 import TaskScreen from './src/screens/TaskScreen';
 import AddTaskScreen from './src/screens/AddTaskScreen';
 import SettingScreen from './src/screens/SettingScreen'; 
+import AddFriendScreen from './src/screens/AddFriendScreen';
+import FriendsScreen from './src/screens/FriendsScreen';
 
 const Stack = createStackNavigator();
 
@@ -24,6 +26,8 @@ export default function App() {
         <Stack.Screen name="TaskScreen" component={TaskScreen} />
         <Stack.Screen name="AddTaskScreen" component={AddTaskScreen} />
         <Stack.Screen name="SettingScreen" component={SettingScreen} />
+        <Stack.Screen name="AddFriendScreen" component={AddFriendScreen} />
+        <Stack.Screen name="FriendsScreen" component={FriendsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
