@@ -9,29 +9,6 @@ const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [posts, setPosts] = useState([]);
 
-  useEffect(() => {
-    const getUsernameAndFetchPosts = async () => {
-      try {
-        const storedUsername = await AsyncStorage.getItem('username');
-        if (storedUsername) {
-          setUsername(storedUsername);
-          // Now fetch posts using the retrieved username
-          const response = await axios.get(`http://127.0.0.1:2323/retrievePosts?username=${storedUsername}`);
-          if (response.status === 200) {
-            setPosts(response.data.posts);
-          }
-        } else {
-          console.error('No username found');
-        }
-      } catch (e) {
-        console.error('Failed to load username or fetch posts', e);
-        Alert.alert('Error', 'Failed to load username or fetch posts');
-      }
-    };
-  
-    getUsernameAndFetchPosts();
-  }, []);
-
   useFocusEffect(
     React.useCallback(() => {
       const getUsernameAndFetchPosts = async () => {
@@ -116,7 +93,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <ScrollView style={styles.postsContainer}>
         {posts.map((post, index) => (
-          <SocialPost username={username} pictureUrl={post.picture} text={post.content} />
+          <SocialPost key={post.post_id || index} username={username} pictureUrl={post.picture} text={post.content} />
         ))}
       </ScrollView>
       <View style={styles.buttonsContainer}>
