@@ -26,14 +26,54 @@ const FriendsScreen = ({ navigation }) => {
     }
   };
 
-  // useFocusEffect runs the callback when the screen comes into focus
   useFocusEffect(
     useCallback(() => {
       fetchFriends();
-      // When the screen is unfocused, you can return a cleanup function to cancel any outgoing requests
-      return () => setFriends([]); // Optional cleanup to reset the friends list
+      return () => setFriends([]);
     }, [])
   );
+
+  const handleFriendOptions = (friendUsername) => {
+    Alert.alert(
+      "Friend Options",
+      `Choose an option for ${friendUsername}`,
+      [
+        {
+          text: "View Tasks",
+          onPress: () => {
+            // Navigate to task screen with friend's username
+            navigation.navigate('TaskScreen', { username: friendUsername });
+          }
+        },
+        {
+          text: "Unfriend",
+          onPress: () => unfriend(friendUsername),
+          style: "destructive"
+        },
+        { text: "Cancel", style: "cancel" }
+      ]
+    );
+  };
+
+  const unfriend = async (friendUsername) => {
+    try {
+      // Assuming you have an endpoint to unfriend a user
+      const username = await AsyncStorage.getItem('username');
+      const response = await axios.post('http://127.0.0.1:2323/deleteFriend', {
+        user1: username,
+        user2: friendUsername
+      });
+      if (response.status === 200) {
+        Alert.alert('Success', `${friendUsername} has been removed from your friends.`);
+        fetchFriends(); // Refresh the friends list
+      } else {
+        Alert.alert('Error', 'Could not unfriend at this time, please try again later.');
+      }
+    } catch (error) {
+      console.error('Unfriend error:', error);
+      Alert.alert('Error', 'An error occurred while trying to unfriend.');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -41,7 +81,9 @@ const FriendsScreen = ({ navigation }) => {
         data={friends}
         keyExtractor={(item) => item.friend_id.toString()}
         renderItem={({ item }) => (
-          <Text style={styles.friendItem}>{item.friend_username}</Text>
+          <TouchableOpacity style={styles.friendItem} onPress={() => handleFriendOptions(item.friend_username)}>
+            <Text>{item.friend_username}</Text>
+          </TouchableOpacity>
         )}
       />
       <TouchableOpacity
@@ -78,6 +120,11 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  friendItem: {
+    backgroundColor: "#ddd", // Slight background color
+    marginBottom: 5,
+    borderRadius: 5,
   },
 });
 

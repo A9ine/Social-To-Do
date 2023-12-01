@@ -238,24 +238,35 @@ def deleteFriend():
     
     # Check for missing data
     if not user1 or not user2:
-        return jsonify({"error": "2 users are required."}), 400
+        return jsonify({"error": "Both users are required."}), 400
     
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(user1,))
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (user1,))
     user1_id = cursor.fetchone()
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(user2,))
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (user2,))
     user2_id = cursor.fetchone()
 
     if not user1_id or not user2_id:
         return jsonify({"error": "One or more of the users do not exist"}), 400
     
-    cursor.execute("SELECT * FROM friends WHERE(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)", (user1_id[0], user2_id[0], user2_id[0], user1_id[0]))
+    # Check if friendship exists
+    cursor.execute("""
+        SELECT * FROM friends 
+        WHERE (user_id = ? AND friend_id = ?) 
+        OR (user_id = ? AND friend_id = ?)
+    """, (user1_id[0], user2_id[0], user2_id[0], user1_id[0]))
     if not cursor.fetchone():
-        return jsonify({"error": "Friendship Does Not Exists"}), 400
+        return jsonify({"error": "Friendship does not exist"}), 400
     
-    cursor.execute("DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?),(user1_id[0], user2_id[0], user2_id[0], user1_id[0]) ")
+    # Delete the friendship
+    cursor.execute("""
+        DELETE FROM friends 
+        WHERE (user_id = ? AND friend_id = ?) 
+        OR (user_id = ? AND friend_id = ?)
+    """, (user1_id[0], user2_id[0], user2_id[0], user1_id[0]))
     conn.commit()
 
-    return jsonify({"message": "Friendship deleted sucessfully"}), 200
+    return jsonify({"message": "Friendship deleted successfully"}), 200
+
 
 # get friends
 @app.route('/getFriends', methods=['GET'])
