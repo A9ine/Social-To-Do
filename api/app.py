@@ -568,13 +568,14 @@ def retrievePosts():
 
     # Retrieve posts from the user and their friends
     cursor.execute("""
-        SELECT p.post_id, p.content, p.picture, p.created_at, u.username
-        FROM posts p
-        JOIN users u ON p.user_id = u.user_id
-        LEFT JOIN friends f ON p.user_id = f.friend_id OR p.user_id = f.user_id
-        WHERE f.user_id = ? OR f.friend_id = ? OR p.user_id = ?
-        ORDER BY p.created_at DESC
-    """, (user_id, user_id, user_id))
+    SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username
+    FROM posts p
+    JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN friends f ON (p.user_id = f.friend_id AND f.user_id = ?) OR (p.user_id = f.user_id AND f.friend_id = ?)
+    WHERE p.user_id = ? OR f.user_id = ? OR f.friend_id = ?
+    ORDER BY p.created_at DESC
+""", (user_id, user_id, user_id, user_id, user_id))
+
 
     posts = cursor.fetchall()
 
@@ -589,7 +590,7 @@ def retrievePosts():
         }
         for post in posts
     ]
-
+    print(posts_list)
     return jsonify({"posts": posts_list}), 200
 
 @app.route('/searchUser', methods=['GET'])
