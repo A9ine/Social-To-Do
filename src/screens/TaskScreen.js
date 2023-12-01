@@ -3,19 +3,22 @@ import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 
 const TaskScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
+  const route = useRoute(); // Use the useRoute hook to access the route parameters
+  const [usernameParam, setUsernameParam] = useState(route.params?.username);
 
   useFocusEffect(
     React.useCallback(() => {
       const fetchTasks = async () => {
         try {
-          const username = await AsyncStorage.getItem('username');
-          if (username) {
+          // Use the passed-in username if available; otherwise, fetch from AsyncStorage
+          const usernameToUse = usernameParam || await AsyncStorage.getItem('username');
+          if (usernameToUse) {
             const response = await axios.get('http://127.0.0.1:2323/getIncompletedTasks', {
-              params: { username }
+              params: { username: usernameToUse }
             });
             if (response.status === 200) {
               setTasks(response.data.tasks);
@@ -32,16 +35,15 @@ const TaskScreen = ({ navigation }) => {
       };
 
       fetchTasks();
-    }, [])
+    }, [usernameParam])
   );
-  const renderTask = ({ item }) => {
-    return (
-      <View style={styles.taskItem}>
-        <Text style={styles.taskText}>{item.task_description}</Text>
-        <Text>Due: {item.due_date}</Text>
-      </View>
-    );
-  };
+
+  const renderTask = ({ item }) => (
+    <View style={styles.taskItem}>
+      <Text style={styles.taskText}>{item.task_description}</Text>
+      <Text>Due: {item.due_date}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -50,12 +52,15 @@ const TaskScreen = ({ navigation }) => {
         renderItem={renderTask}
         keyExtractor={(item) => item.task_id.toString()}
       />
-     <Button onPress={() => navigation.navigate('AddTaskScreen')}>
-        Add New Task
-    </Button>
+      {!usernameParam && ( // Only show the Add New Task button if a username was not passed in
+        <Button onPress={() => navigation.navigate('AddTaskScreen')}>
+          Add New Task
+        </Button>
+      )}
     </View>
   );
 };
+
 
 
 const styles = StyleSheet.create({
