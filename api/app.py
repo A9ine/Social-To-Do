@@ -569,7 +569,7 @@ def getChat():
     if not group_id:
         return jsonify({"error": "group_id Does Not Exist"}), 400
     
-    cursor.execute("SELECT user_id, message, sent_at FROM chat_messages WHERE group_id = ? ORDER BY sent_at DESC", (group_id,))
+    cursor.execute("SELECT user_id, message, sent_at FROM chat_messages WHERE group_id = ? ORDER BY sent_at ASC", (group_id,))
     messages = cursor.fetchall()
 
     usernames = []
@@ -643,6 +643,43 @@ def startChat():
 
     return jsonify({"message": "Group chat started successfully", "group_id": group_id})
 
+@app.route('/getUserChats', methods=['GET'])
+def getUserChats():
+    conn = db_connection()
+    cursor = conn.cursor()
+    username = request.args.get('username')
+
+    if not username:
+        return jsonify({"error": "Username is required."}), 400
+
+    try:
+        cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+        user_id_record = cursor.fetchone()
+
+        if not user_id_record:
+            return jsonify({"error": "User not found."}), 404
+
+        user_id = user_id_record[0]
+
+        cursor.execute("""
+            SELECT g.group_id, g.group_name
+            FROM groups g
+            JOIN group_members gm ON g.group_id = gm.group_id
+            WHERE gm.user_id = ?
+        """, (user_id,))
+
+        groups = cursor.fetchall()
+
+        group_list = [{"group_id": group[0], "group_name": group[1]} for group in groups]
+
+        return jsonify({"groups": group_list}), 200
+
+    except sqlite3.Error as e:
+        print(e)
+        return jsonify({"error": "Database error occurred."}), 500
+
+    finally:
+        conn.close()
 
 # post
 @app.route('/makePost', methods=['POST'])

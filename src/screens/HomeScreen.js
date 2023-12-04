@@ -102,6 +102,10 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('SettingScreen'); //navigating to SettingScreen
   }
 
+  const navigateToChat = () => {
+    navigation.navigate('ChatListScreen'); 
+  }
+
   const navigateToNotifications = () => {
     navigation.navigate('NotificationsScreen', { pendingFriends });
   };
@@ -149,11 +153,17 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>Sign Out</Text>
         </TouchableOpacity>
         <TouchableOpacity
-  style={pendingFriends && pendingFriends.length > 0 ? styles.notificationButtonActive : styles.notificationButton}
-  onPress={navigateToNotifications}
->
-  <Text style={styles.buttonText}>Notifications</Text>
-</TouchableOpacity>
+          style={pendingFriends && pendingFriends.length > 0 ? styles.notificationButtonActive : styles.notificationButton}
+          onPress={navigateToNotifications}
+        >
+          <Text style={styles.buttonText}>Notifications</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.chatButton}
+          onPress={navigateToChat}
+        >
+          <Text style={styles.buttonText}>Chat</Text>
+        </TouchableOpacity>
 
       </View>
     </View>
@@ -211,6 +221,14 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     minWidth: 80,
+  },
+  chatButton: {
+    position: 'absolute',
+    top: -750, // Adjust this value as needed to position the button
+    right: 140,
+    backgroundColor: '#8A2BE2',
+    padding: 10,
+    borderRadius: 5,
   },
   notificationButtonActive: {
     position: 'absolute',

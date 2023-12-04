@@ -11,8 +11,10 @@ import AddTaskScreen from './src/screens/AddTaskScreen';
 import SettingScreen from './src/screens/SettingScreen'; 
 import AddFriendScreen from './src/screens/AddFriendScreen';
 import FriendsScreen from './src/screens/FriendsScreen';
-import ChatScreen from './src/screens/ChatScreen';
+import ChatListScreen from './src/screens/ChatListScreen';
 import NotificationsScreen from './src/screens/NotificationScreen';
+import StartChatScreen from './src/screens/StartChatScreen';
+import ChatScreen from './src/screens/ChatScreen';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +33,8 @@ export default function App() {
         <Stack.Screen name="AddFriendScreen" component={AddFriendScreen} />
         <Stack.Screen name="FriendsScreen" component={FriendsScreen} />
         <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
+        <Stack.Screen name="ChatListScreen" component={ChatListScreen} />
+        <Stack.Screen name="StartChatScreen" component={StartChatScreen} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
       </Stack.Navigator>
     </NavigationContainer>

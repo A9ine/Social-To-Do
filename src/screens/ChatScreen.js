@@ -1,44 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, ScrollView, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useCallback } from 'react';
+import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChatScreen = () => {
-  const [chats, setChats] = useState([]);
-  const navigation = useNavigation();
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const route = useRoute();
+  const { groupId } = route.params;
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const storedUsername = await AsyncStorage.getItem('username');
-        if (storedUsername) {
-          const response = await axios.get(`http://127.0.0.1:2323/getChats?username=${storedUsername}`);
+  useFocusEffect(
+    useCallback(() => {
+      let intervalId;
+  
+      const fetchChatDetails = async () => {
+        try {
+          const response = await axios.get(`http://127.0.0.1:2323/getChat?group_id=${groupId}`);
           if (response.status === 200) {
-            setChats(response.data.chats);
+            setMessages(response.data.messages);
           }
-        } else {
-          console.error('No username found');
+        } catch (error) {
+          console.error('Failed to fetch chat messages', error);
         }
-      } catch (e) {
-        console.error('Failed to fetch chats', e);
+      };
+  
+      const startPolling = () => {
+        // Fetch immediately on focus
+        fetchChatDetails();
+        // Start polling
+        intervalId = setInterval(fetchChatDetails, 1000);
+      };
+  
+      startPolling();
+  
+      // Clear the interval when the screen goes out of focus
+      return () => clearInterval(intervalId);
+    }, [groupId])
+  );
+  
+  const handleSendMessage = async () => {
+    if (newMessage.trim()) {
+      try {
+        const username = await AsyncStorage.getItem('username');
+        const response = await axios.post('http://127.0.0.1:2323/sendChat', {
+          group_id: groupId,
+          message: newMessage,
+          username: username
+          // include other necessary fields like userId or authToken depending on your API
+        });
+        
+        if (response.status === 200) {
+          setNewMessage(''); // Clear the input field
+          // Ideally, you would want to fetch the messages again to show the new message
+          // Alternatively, if your backend sends the full message back, you can append it to the chat
+        }
+      } catch (error) {
+        console.error('Failed to send message', error);
       }
-    };
+    }
+  };
 
-    fetchChats();
-  }, []);
+  const renderMessage = ({ item }) => (
+    <View style={styles.messageItem}>
+      <Text style={styles.messageText}>{item.usernames}: {item.message}</Text>
+      <Text style={styles.messageDate}>{item.sent_at}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        {chats.map((chat, index) => (
-          <View key={index} style={styles.chatItem}>
-            <Text>{chat.message}</Text>
-            {/* maybe display other chats */}
-          </View>
-        ))}
-      </ScrollView>
-      <Button title="Back to Home" onPress={() => navigation.navigate('HomeScreen')} />
+      <FlatList
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={(item, index) => 'message-' + index}
+      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={newMessage}
+          onChangeText={setNewMessage}
+          placeholder="Type your message here..."
+        />
+        <Button title="Send" onPress={handleSendMessage} />
+      </View>
     </View>
   );
 };
@@ -48,8 +94,30 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  chatItem: {
-    //style will be added later
+  inputContainer: {
+    flexDirection: 'row',
+    padding: 10,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: 'gray',
+    padding: 10,
+    marginRight: 10,
+    borderRadius: 5,
+  },
+  messageItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    marginBottom: 10,
+  },
+  messageText: {
+    fontSize: 16,
+  },
+  messageDate: {
+    fontSize: 12,
+    color: 'gray',
   },
 });
 
