@@ -642,6 +642,148 @@ def searchUser():
 
     return jsonify({"users": users_list}), 200
 
+# update password
+@app.route('/updatePassword', methods=['POST'])
+def updatePassword():
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # Get credentials from request arguments
+    data = request.get_json()
+    username = data.get('username').lower()
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+
+    if not username or not old_password or not new_password:
+        return jsonify({"error": "All fields are required."}), 400
+
+    try:
+        # Check if the old password is correct
+        cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
+        user_record = cursor.fetchone()
+
+        if not user_record:
+            return jsonify({"error": "User not found."}), 404
+
+        if user_record[0] != old_password:
+            return jsonify({"error": "Incorrect old password."}), 401
+
+        # Update the password
+        cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+        conn.commit()
+
+        return jsonify({"message": "Password updated successfully"}), 200
+
+    except sqlite3.Error as e:
+        print(e)
+        return jsonify({"error": "Database error occurred."}), 500
+
+    finally:
+        conn.close()
+
+@app.route('/updateEmail', methods=['POST'])
+def updateEmail():
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    data = request.get_json()
+    username = data.get('username').lower()
+    new_email = data.get('new_email').lower()
+    verification_code = data.get('verification_code')
+
+    if not username or not new_email or not verification_code:
+        return jsonify({"error": "All fields are required."}), 400
+
+    try:
+        cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+        user_id_record = cursor.fetchone()
+
+        if not user_id_record:
+            return jsonify({"error": "User not found."}), 404
+        
+        user_id = user_id_record[0]
+
+        cursor.execute("SELECT verification_code FROM verification_codes WHERE user_id = ?", (user_id,))
+        code_record = cursor.fetchone()
+
+        if not code_record or code_record[0] != verification_code:
+            print(code_record)
+            print(code_record[0])
+            return jsonify({"error": "Invalid verification code."}), 401
+
+        # Update the email
+        cursor.execute("UPDATE users SET email = ? WHERE username = ?", (new_email, username))
+        conn.commit()
+
+        return jsonify({"message": "Email updated successfully"}), 200
+
+    except sqlite3.Error as e:
+        print(e)
+        return jsonify({"error": "Database error occurred."}), 500
+
+    finally:
+        conn.close()
+    
+@app.route('/getVerificationChangeEmail', methods=['POST'])
+def sendVerificationEmail():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+
+    new_email = data.get('new_email').lower()
+    username = data.get('username').lower()
+
+    # Generate verification code
+    string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    verification_code = ""
+    length = len(string)
+    for i in range(6):
+        verification_code += string[math.floor(random.random() * length)]
+
+    # Retrieve user_id using username
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id = cursor.fetchone()
+
+    if not user_id:
+        print(user_id)
+        return jsonify({"error": "User not found"}), 404
+
+    # Update or insert verification code in the database
+    cursor.execute("SELECT * FROM verification_codes WHERE user_id = ?", (user_id[0],))
+    if cursor.fetchone():
+        cursor.execute("UPDATE verification_codes SET verification_code = ? WHERE user_id = ?", (verification_code, user_id[0]))
+    else:
+        cursor.execute("INSERT INTO verification_codes (user_id, verification_code) VALUES (?, ?)", (user_id[0], verification_code))
+    
+    conn.commit()
+
+    # Read email template and replace placeholder with actual verification code
+    with open('./templates/verification_email.html', 'r', encoding='utf-8') as file:
+        email_content = file.read()
+        email_content = email_content.replace('{{verification_code}}', verification_code)
+
+    # Email sending setup
+    sender_email = "socialtodobot@gmail.com"
+    receiver_email = new_email  # Use the new email provided
+    password = "sppg zywg yzqu dymu"
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Your Verification Code"
+    message["From"] = sender_email
+    message["To"] = receiver_email
+
+    # Add HTML content to email
+    part = MIMEText(email_content, "html")
+    message.attach(part)
+
+    # Create secure SSL context and send the email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, message.as_string())
+
+    return jsonify({"message": "Verification email sent successfully"}), 200
+
 
 if __name__ == '__main__':
     app.run(port=2323)
