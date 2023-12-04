@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [posts, setPosts] = useState([]);
+  const [pendingFriends, setPendingFriends] = useState([]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -29,6 +30,37 @@ const HomeScreen = ({ navigation }) => {
         }
       };
       getUsernameAndFetchPosts();
+    }, [])
+
+    
+
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchPendingFriends = async () => {
+        try {
+          const username = await AsyncStorage.getItem('username');
+          if (username) {
+            const response = await axios.get(`http://127.0.0.1:2323/getPendingFriends`, {
+              params: { username }
+            });
+            console.log(response.data); // Log the response data
+            if (response.status === 200 && response.data.pending_friends) {
+              setPendingFriends(response.data.pending_friends);
+            } else {
+              setPendingFriends([]); 
+            }
+          } else {
+            console.error('No username found');
+          }
+        } catch (e) {
+          console.error('Failed to fetch pending friends', e);
+          Alert.alert('Error', 'Failed to fetch pending friends');
+          setPendingFriends([]); 
+        }
+      };
+      fetchPendingFriends();
     }, [])
   );
   
@@ -69,6 +101,10 @@ const HomeScreen = ({ navigation }) => {
   const navigateToSettings = () => {
     navigation.navigate('SettingScreen'); //navigating to SettingScreen
   }
+
+  const navigateToNotifications = () => {
+    navigation.navigate('NotificationsScreen', { pendingFriends });
+  };
 
   const handleTask = async () => {
     try {
@@ -112,6 +148,13 @@ const HomeScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.button} onPress={handleSignOut}>
           <Text style={styles.buttonText}>Sign Out</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+  style={pendingFriends && pendingFriends.length > 0 ? styles.notificationButtonActive : styles.notificationButton}
+  onPress={navigateToNotifications}
+>
+  <Text style={styles.buttonText}>Notifications</Text>
+</TouchableOpacity>
+
       </View>
     </View>
   );
@@ -121,6 +164,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F3F3F7',
+    position: 'relative',
   },
   postsContainer: {
     flex: 1,
@@ -156,6 +200,28 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   signOutText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  notificationButton: {
+    position: 'absolute',
+    top: -750, // Adjust this value as needed to position the button
+    right: 20,
+    backgroundColor: '#8A2BE2',
+    padding: 10,
+    borderRadius: 5,
+    minWidth: 80,
+  },
+  notificationButtonActive: {
+    position: 'absolute',
+    top: -750, // Adjust this value as needed to position the button
+    right: 20,
+    backgroundColor: 'red', // Different color to indicate active notifications
+    padding: 10,
+    borderRadius: 5,
+    minWidth: 80,
+  },
+  buttonText: {
     color: 'white',
     fontWeight: 'bold',
   },

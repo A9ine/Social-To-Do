@@ -11,6 +11,7 @@ import AddTaskScreen from './src/screens/AddTaskScreen';
 import SettingScreen from './src/screens/SettingScreen'; 
 import AddFriendScreen from './src/screens/AddFriendScreen';
 import FriendsScreen from './src/screens/FriendsScreen';
+import NotificationsScreen from './src/screens/NotificationScreen';
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,7 @@ export default function App() {
         <Stack.Screen name="SettingScreen" component={SettingScreen} />
         <Stack.Screen name="AddFriendScreen" component={AddFriendScreen} />
         <Stack.Screen name="FriendsScreen" component={FriendsScreen} />
+        <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

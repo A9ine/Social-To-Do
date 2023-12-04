@@ -222,7 +222,7 @@ def addFriend():
         return jsonify({"error": "Friendship Already Exists"}), 400
     
     #add new friendship
-    cursor.execute("INSERT INTO friends (user_id, friend_id, status, created_at, updated_at) VALUES (?, ?, 'accepted', datetime('now'), datetime('now'))", (user1_id[0], user2_id[0]))
+    cursor.execute("INSERT INTO friends (user_id, friend_id, status, created_at, updated_at) VALUES (?, ?, 'pending', datetime('now'), datetime('now'))", (user1_id[0], user2_id[0]))
     conn.commit()
     return jsonify({"message": "Friendship added sucessfully"}), 200
 
@@ -267,40 +267,161 @@ def deleteFriend():
 
     return jsonify({"message": "Friendship deleted successfully"}), 200
 
+@app.route('/acceptFriend', methods=['POST'])
+def acceptFriend():
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    data = request.get_json()
+    user1 = data.get('user1')  # Username of the user accepting the friend request
+    user2 = data.get('user2')  # Username of the user who sent the friend request
+
+    if not user1 or not user2:
+        return jsonify({"error": "Both usernames are required."}), 400
+
+    try:
+        # Get user IDs from usernames
+        cursor.execute("SELECT user_id FROM users WHERE username = ?", (user1,))
+        user1_id = cursor.fetchone()
+        cursor.execute("SELECT user_id FROM users WHERE username = ?", (user2,))
+        user2_id = cursor.fetchone()
+
+        if not user1_id or not user2_id:
+            return jsonify({"error": "One or more users not found"}), 404
+
+        # Check if the friendship is in a 'pending' state
+        cursor.execute("SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'", (user2_id[0], user1_id[0]))
+        if not cursor.fetchone():
+            return jsonify({"error": "No pending friendship request found"}), 404
+
+        # Update the status of the friendship to 'accepted'
+        cursor.execute("UPDATE friends SET status = 'accepted', updated_at = datetime('now') WHERE user_id = ? AND friend_id = ?", (user2_id[0], user1_id[0]))
+        conn.commit()
+
+        return jsonify({"message": "Friend request accepted"}), 200
+
+    except sqlite3.Error as e:
+        print(e)
+        return jsonify({"error": "Database error occurred"}), 500
+
+    finally:
+        conn.close()
+
+
 
 # get friends
 @app.route('/getFriends', methods=['GET'])
 def getFriends():
     conn = db_connection()
     cursor = conn.cursor()
-    user = request.args.get('username')
+    username = request.args.get('username')
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(user,))
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
     user_id_record = cursor.fetchone()
     
-    user_id = user_id_record[0]
-
-    if not user_id:
+    if not user_id_record:
         return jsonify({"error": "User Does Not Exist"}), 400
+
+    user_id = user_id_record[0]
 
     cursor.execute("""
         SELECT u.user_id, u.username
         FROM users u
         JOIN friends f ON u.user_id = f.friend_id OR u.user_id = f.user_id
-        WHERE (f.user_id = ? OR f.friend_id = ?) AND u.user_id != ?
+        WHERE (f.user_id = ? OR f.friend_id = ?) AND u.user_id != ? AND f.status = 'accepted'
     """, (user_id, user_id, user_id))
 
     friends = cursor.fetchall()
 
     friend_list = [
         {
-            'friend_id' : friend[0],
-            'friend_username' : friend[1]
+            'friend_id': friend[0],
+            'friend_username': friend[1]
         }
         for friend in friends
     ]
 
     return jsonify({"friends": friend_list}), 200
+
+@app.route('/getPendingFriends', methods=['GET'])
+def getPendingFriends():
+    conn = db_connection()
+    cursor = conn.cursor()
+    username = request.args.get('username')
+
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id_record = cursor.fetchone()
+    
+    if not user_id_record:
+        return jsonify({"error": "User Does Not Exist"}), 400
+
+    user_id = user_id_record[0]
+
+    # Adjusted query to select pending friend requests where the user is the recipient
+    cursor.execute("""
+        SELECT u.user_id, u.username
+        FROM users u
+        JOIN friends f ON u.user_id = f.user_id
+        WHERE f.friend_id = ? AND f.status = 'pending'
+    """, (user_id,))
+
+    pending_friends = cursor.fetchall()
+
+    pending_friend_list = [
+        {
+            'friend_id': friend[0],
+            'friend_username': friend[1]
+        }
+        for friend in pending_friends
+    ]
+
+    print(pending_friend_list)
+
+    conn.close()
+    return jsonify({"pending_friends": pending_friend_list}), 200
+
+
+@app.route('/denyFriend', methods=['POST'])
+def denyFriend():
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    data = request.get_json()
+    user1 = data.get('user1')  # Username of the user denying the friend request
+    user2 = data.get('user2')  # Username of the user who sent the friend request
+
+    if not user1 or not user2:
+        return jsonify({"error": "Both usernames are required."}), 400
+
+    try:
+        # Get user IDs from usernames
+        cursor.execute("SELECT user_id FROM users WHERE username = ?", (user1,))
+        user1_id = cursor.fetchone()
+        cursor.execute("SELECT user_id FROM users WHERE username = ?", (user2,))
+        user2_id = cursor.fetchone()
+
+        if not user1_id or not user2_id:
+            return jsonify({"error": "One or more users not found"}), 404
+
+        # Check if the friendship is in a 'pending' state
+        cursor.execute("SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'", (user2_id[0], user1_id[0]))
+        if not cursor.fetchone():
+            return jsonify({"error": "No pending friendship request found"}), 404
+
+        # Update the status of the friendship to 'denied'
+        cursor.execute("UPDATE friends SET status = 'denied', updated_at = datetime('now') WHERE user_id = ? AND friend_id = ?", (user2_id[0], user1_id[0]))
+        conn.commit()
+
+        return jsonify({"message": "Friend request denied"}), 200
+
+    except sqlite3.Error as e:
+        print(e)
+        return jsonify({"error": "Database error occurred"}), 500
+
+    finally:
+        conn.close()
+
+
 
 
 # add tasks
