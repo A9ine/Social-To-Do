@@ -45,7 +45,7 @@ create_tasks_table = """
     CREATE TABLE IF NOT EXISTS tasks (
         task_id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
-        taskCategory TEXT NOT NULL,
+        task_category TEXT NOT NULL,
         task TEXT NOT NULL,
         created_at DATETIME NOT NULL,
         updated_at DATETIME NOT NULL,

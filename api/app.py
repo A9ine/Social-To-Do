@@ -432,9 +432,10 @@ def addTask():
     data = request.get_json()
     user = data.get('username').lower()
     task = data.get('task')
+    task_category = data.get('task_category')
     due_date = data.get("due_date")
 
-    if not user or not task or not due_date:
+    if not user or not task or not task_category or not due_date:
         return jsonify({"error": "all fields need to be filled"}), 400
 
     cursor.execute("SELECT user_id FROM users WHERE username = ?",(user,))
@@ -444,7 +445,7 @@ def addTask():
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    cursor.execute("INSERT INTO tasks(user_id, task, created_at, updated_at, due_date, completed) VALUES (?, ?, datetime('now'), datetime('now'), ?, ?)", (user_id, task, due_date, False))
+    cursor.execute("INSERT INTO tasks(user_id, task, task_category, created_at, updated_at, due_date, completed) VALUES (?, ?, datetime('now'), datetime('now'), ?, ?)", (user_id, task, task_category, due_date, False))
     conn.commit()
     return jsonify({"message": "Task added sucessfully"}), 200
 
