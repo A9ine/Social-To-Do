@@ -471,18 +471,42 @@ def matchTasks():
         return jsonify({"error": "User not found"}), 404
     user_id = user_id_record[0]
 
-    # Execute the matching query
+    
+    #cursor.execute("""
+    #    SELECT t1.task, t1.task_category, t2.task AS friend_task, t2.task_category
+    #    FROM tasks t1
+    #    JOIN friends f ON (t1.user_id = f.user_id OR t1.user_id = f.friend_id)
+    #    JOIN tasks t2 ON (f.friend_id = t2.user_id OR f.user_id = t2.user_id) AND t1.task_category = t2.task_category
+    #    WHERE (t1.user_id = ?) AND t1.task_id != t2.task_id AND f.status = 'accepted'
+    #""", (user_id,))
+
     cursor.execute("""
-        SELECT t1.task, t1.task_category, t2.task AS friend_task, t2.task_category, f.friend_id
+        SELECT t1.task AS user_task, t1.task_category, t2.task AS friend_task, t2.task_category, u.username AS friend_username
         FROM tasks t1
-        JOIN friends f ON t1.user_id = f.user_id
-        JOIN tasks t2 ON f.friend_id = t2.user_id AND t1.task_category = t2.task_category
-        WHERE t1.user_id = ? AND f.status = 'accepted'
+        JOIN friends f ON (t1.user_id = f.user_id OR t1.user_id = f.friend_id)
+        JOIN tasks t2 ON (f.friend_id = t2.user_id OR f.user_id = t2.user_id) AND t1.task_category = t2.task_category
+        JOIN users u ON (t2.user_id = u.user_id OR t2.user_id = f.friend_id)  -- Make sure this line is correctly joining the users table
+        WHERE t1.user_id = ? AND t1.task_id != t2.task_id AND f.status = 'accepted'
     """, (user_id,))
-
+    
     matched_tasks = cursor.fetchall()
+    formatted_tasks = []
 
-    return jsonify({"matched_tasks": matched_tasks}), 200
+    for task in matched_tasks:
+        formatted_task = {
+            "Your task": {
+                "category": task[1],
+                "description": task[0]
+            },
+            f"{task[4]}'s task": {  # Ensure task[4] is correctly retrieving the friend's username
+                "category": task[3],
+                "description": task[2]
+            }
+        }
+    formatted_tasks.append(formatted_task)
+
+
+    return jsonify({"matched_tasks": formatted_tasks}), 200
 
 # mark task as done
 
