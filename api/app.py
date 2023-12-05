@@ -735,16 +735,15 @@ def retrievePosts():
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    # Retrieve posts from the user and their friends
+    # Retrieve posts from the user and their friends where the friend status is 'accepted'
     cursor.execute("""
     SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username
     FROM posts p
     JOIN users u ON p.user_id = u.user_id
-    LEFT JOIN friends f ON (p.user_id = f.friend_id AND f.user_id = ?) OR (p.user_id = f.user_id AND f.friend_id = ?)
-    WHERE p.user_id = ? OR f.user_id = ? OR f.friend_id = ?
+    LEFT JOIN friends f ON ((p.user_id = f.friend_id AND f.user_id = ?) OR (p.user_id = f.user_id AND f.friend_id = ?))
+    WHERE (p.user_id = ? OR f.user_id = ? OR f.friend_id = ?) AND (f.status = 'accepted' OR f.status IS NULL)
     ORDER BY p.created_at DESC
 """, (user_id, user_id, user_id, user_id, user_id))
-
 
     posts = cursor.fetchall()
 
@@ -761,6 +760,7 @@ def retrievePosts():
     ]
     print(posts_list)
     return jsonify({"posts": posts_list}), 200
+
 
 @app.route('/searchUser', methods=['GET'])
 def searchUser():

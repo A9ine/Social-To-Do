@@ -51,7 +51,7 @@ const AddFriendScreen = ({ navigation }) => {
       });
 
       if (response.status === 200) {
-        Alert.alert('Success', `${friendUsername} added as a friend`);
+        Alert.alert('Success', `${friendUsername} has been sent a friend invitation`);
         navigation.navigate('FriendsScreen')
         
       } else {

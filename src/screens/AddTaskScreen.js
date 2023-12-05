@@ -68,14 +68,6 @@ const AddTaskScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Subject:</Text>
-      <TextInput
-        style={styles.input}
-        value={subject}
-        onChangeText={setSubject}
-        placeholder="Enter subject"
-      />
-
       <Text style={styles.label}>Task Description:</Text>
       <TextInput
         style={styles.textArea}
