@@ -201,8 +201,8 @@ def addFriend():
     cursor = conn.cursor()
 
     data = request.get_json()
-    user1 = data.get('user1')
-    user2 = data.get('user2')
+    user1 = data.get('user1').lower()
+    user2 = data.get('user2').lower()
     
     # Check for missing data
     if not user1 or not user2:
@@ -233,8 +233,8 @@ def deleteFriend():
     cursor = conn.cursor()
 
     data = request.get_json()
-    user1 = data.get('user1')
-    user2 = data.get('user2')
+    user1 = data.get('user1').lower()
+    user2 = data.get('user2').lower()
     
     # Check for missing data
     if not user1 or not user2:
@@ -273,8 +273,8 @@ def acceptFriend():
     cursor = conn.cursor()
 
     data = request.get_json()
-    user1 = data.get('user1')  # Username of the user accepting the friend request
-    user2 = data.get('user2')  # Username of the user who sent the friend request
+    user1 = data.get('user1').lower()  # Username of the user accepting the friend request
+    user2 = data.get('user2').lower()  # Username of the user who sent the friend request
 
     if not user1 or not user2:
         return jsonify({"error": "Both usernames are required."}), 400
@@ -445,11 +445,45 @@ def addTask():
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    cursor.execute("INSERT INTO tasks(user_id, task, task_category, created_at, updated_at, due_date, completed) VALUES (?, ?, datetime('now'), datetime('now'), ?, ?)", (user_id, task, task_category, due_date, False))
+    cursor.execute("INSERT INTO tasks(user_id, task, task_category, created_at, updated_at, due_date, completed) VALUES (?, ?, ?, datetime('now'), datetime('now'), ?, ?)", (user_id, task, task_category, due_date, False))
     conn.commit()
     return jsonify({"message": "Task added sucessfully"}), 200
 
-    
+
+# match tasks
+@app.route('/matchTasks', methods=['GET'])
+def matchTasks():
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    username = request.args.get('username', '').lower()
+
+    # data = request.get_json()
+    # username = data.get('username').lower()
+    # task_category = data.get('task_category')
+    # username = request.args.get('username')
+    # task_category = request.args.get('task_category')
+
+    # Get the user ID for the given username
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id_record = cursor.fetchone()
+    if not user_id_record:
+        return jsonify({"error": "User not found"}), 404
+    user_id = user_id_record[0]
+
+    # Execute the matching query
+    cursor.execute("""
+        SELECT t1.task, t1.task_category, t2.task AS friend_task, t2.task_category, f.friend_id
+        FROM tasks t1
+        JOIN friends f ON t1.user_id = f.user_id
+        JOIN tasks t2 ON f.friend_id = t2.user_id AND t1.task_category = t2.task_category
+        WHERE t1.user_id = ? AND f.status = 'accepted'
+    """, (user_id,))
+
+    matched_tasks = cursor.fetchall()
+
+    return jsonify({"matched_tasks": matched_tasks}), 200
+
 # mark task as done
 
 # retrieve tasks 
