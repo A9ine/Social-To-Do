@@ -20,6 +20,7 @@ const HomeScreen = ({ navigation }) => {
             const response = await axios.get(`http://127.0.0.1:2323/retrievePosts?username=${storedUsername}`);
             if (response.status === 200) {
               setPosts(response.data.posts);
+              console.log(response.data.posts.comments);
             }
           } else {
             console.error('No username found');
@@ -119,6 +120,10 @@ const HomeScreen = ({ navigation }) => {
       }
   };
 
+  const handleCommentPost = (postId, comments) => {
+    navigation.navigate('CommentScreen', { postId: postId, comments: comments });
+  };
+  
   const handleFriends = async () => {
     try {
         navigation.navigate('FriendsScreen');
@@ -127,13 +132,69 @@ const HomeScreen = ({ navigation }) => {
         console.error('Error navigating to make friend screen:', e);
       }
   };
+
+  const handleLikePost = async (postId, isLiked) => {
+    const username = await AsyncStorage.getItem('username');
+  
+    // Optimistically update the UI
+    setPosts(currentPosts =>
+      currentPosts.map(post =>
+        post.post_id === postId
+          ? {
+              ...post,
+              liked_by_user: !isLiked,
+              like_count: isLiked ? post.like_count - 1 : post.like_count + 1, // Increment or decrement like count
+            }
+          : post
+      )
+    );
+  
+    try {
+      // Determine the endpoint based on whether the post is currently liked
+      const endpoint = isLiked ? '/unlikePost' : '/likePost';
+      const response = await axios.post(`http://127.0.0.1:2323${endpoint}`, {
+        post_id: postId,
+        username: username,
+      });
+  
+      // If the operation failed, revert the change
+      if (response.status !== 200) {
+        setPosts(currentPosts =>
+          currentPosts.map(post =>
+            post.post_id === postId ? { ...post, liked_by_user: isLiked } : post
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Like/unlike post error:', error);
+      Alert.alert('Error', 'An error occurred while updating the like status');
+  
+      // Revert the change if there was an error
+      setPosts(currentPosts =>
+        currentPosts.map(post =>
+          post.post_id === postId ? { ...post, liked_by_user: isLiked } : post
+        )
+      );
+    }
+  };
+  
   
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.postsContainer}>
         {posts.map((post, index) => (
-          <SocialPost key={post.post_id || index} username={username} pictureUrl={post.picture} text={post.content} />
+          <SocialPost
+            key={post.post_id || index}
+            username={username}
+            pictureUrl={post.picture}
+            text={post.content}
+            liked={post.liked_by_user}
+            like_count={post.like_count}
+            comments={post.comments}
+            onLikePress={() => handleLikePost(post.post_id, post.liked_by_user)}
+            onCommentPress={() => handleCommentPost(post.post_id, post.comments)}
+        />
         ))}
       </ScrollView>
       <View style={styles.buttonsContainer}>

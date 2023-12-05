@@ -15,6 +15,7 @@ import ChatListScreen from './src/screens/ChatListScreen';
 import NotificationsScreen from './src/screens/NotificationScreen';
 import StartChatScreen from './src/screens/StartChatScreen';
 import ChatScreen from './src/screens/ChatScreen';
+import CommentScreen from './src/screens/CommentScreen';
 
 const Stack = createStackNavigator();
 
@@ -36,6 +37,7 @@ export default function App() {
         <Stack.Screen name="ChatListScreen" component={ChatListScreen} />
         <Stack.Screen name="StartChatScreen" component={StartChatScreen} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
+        <Stack.Screen name='CommentScreen' component={CommentScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

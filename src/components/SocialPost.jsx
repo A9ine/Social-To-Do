@@ -1,19 +1,49 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-const SocialPost = ({ username, pictureUrl, text }) => {
+const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count }) => {
+  const likeIcon = liked ? require('../assets/liked_like_icon.jpg') : require('../assets/unliked_like_icon.png');
+  const commentIcon = require('../assets/comment.png');
+
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <View style={styles.avatar}></View>
-        <Text style={styles.username}>{text}</Text>
+        <Text style={styles.username}>{text}</Text> 
       </View>
       <Image source={{ uri: pictureUrl }} style={styles.image} />
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity onPress={onLikePress}>
+          <Image source={likeIcon} style={styles.actionIcon} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onCommentPress}>
+          <Image source={commentIcon} style={styles.actionIcon} />
+        </TouchableOpacity>
+        <Text style={styles.likes}>
+            {like_count === 1 ? '1 like' : `${like_count} likes`}
+        </Text>
+      </View>
+      {comments.map((comment, index) => (
+        <View key={index} style={styles.commentContainer}>
+          <Text style={styles.commentUsername}>{comment.username}</Text>
+          <Text style={styles.commentText}>{comment.comment}</Text>
+        </View>
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // ... other styles remain unchanged
+  commentContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    alignItems: 'center',
+  },
+  commentText: {
+    fontSize: 14,
+    marginLeft: 5, // Add margin if needed
+  },
   container: {
     backgroundColor: 'white',
     borderRadius: 15,
@@ -43,6 +73,27 @@ const styles = StyleSheet.create({
   },
   text: {
     padding: 10,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    alignItems: 'center',
+  },
+  actionIcon: {
+    width: 25,
+    height: 25,
+    marginRight: 10,
+  },
+  likes: {
+    fontWeight: 'bold',
+    marginVertical: 5,
+  },
+  comment: {
+    fontSize: 14,
+    marginVertical: 2,
+  },
+  commentUsername: {
+    fontWeight: 'bold',
   },
 });
 

@@ -723,11 +723,9 @@ def retrievePosts():
     conn = db_connection()
     cursor = conn.cursor()
 
-    # Assuming the username is passed as a query parameter
     username = request.args.get('username')
     username = str(username).lower()
 
-    # First, get the user_id of the requesting user
     cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
     user_id_record = cursor.fetchone()
 
@@ -735,31 +733,61 @@ def retrievePosts():
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    # Retrieve posts from the user and their friends where the friend status is 'accepted'
     cursor.execute("""
     SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username
     FROM posts p
     JOIN users u ON p.user_id = u.user_id
     LEFT JOIN friends f ON ((p.user_id = f.friend_id AND f.user_id = ?) OR (p.user_id = f.user_id AND f.friend_id = ?))
-    WHERE (p.user_id = ? OR f.user_id = ? OR f.friend_id = ?) AND (f.status = 'accepted' OR f.status IS NULL)
+    WHERE (p.user_id = ? OR f.status = 'accepted') 
     ORDER BY p.created_at DESC
-""", (user_id, user_id, user_id, user_id, user_id))
+""", (user_id, user_id, user_id))
 
     posts = cursor.fetchall()
+    
+    posts_list = []
+    for post in posts:
+        # Check if the user has liked the post
+        cursor.execute("""
+        SELECT COUNT(1) FROM post_likes WHERE post_id = ? AND user_id = ?
+        """, (post[0], user_id))
+        liked = cursor.fetchone()[0] > 0
 
-    # Convert the posts to a list of dicts to jsonify the response properly
-    posts_list = [
-        {
+        # Get like count for the post
+        cursor.execute("""
+        SELECT COUNT(*) FROM post_likes WHERE post_id = ?
+        """, (post[0],))
+        like_count = cursor.fetchone()[0]
+
+        # Retrieve all comments for the post
+        cursor.execute("""
+        SELECT u.username, c.comment, c.created_at 
+        FROM post_comments c
+        JOIN users u ON c.user_id = u.user_id
+        WHERE c.post_id = ?
+        ORDER BY c.created_at DESC
+        """, (post[0],))
+        
+        comments = cursor.fetchall()
+        comments_list = [{
+            'username': comment[0],
+            'comment': comment[1],
+            'created_at': comment[2]
+        } for comment in comments]
+
+        posts_list.append({
             'post_id': post[0],
             'content': post[1],
             'picture': post[2],
             'created_at': post[3],
-            'author_username': post[4]
-        }
-        for post in posts
-    ]
-    print(posts_list)
+            'author_username': post[4],
+            'liked_by_user': liked,
+            'like_count': like_count,  # Add like count here
+            'comments': comments_list
+        })
+
     return jsonify({"posts": posts_list}), 200
+
+
 
 
 @app.route('/searchUser', methods=['GET'])
@@ -941,6 +969,103 @@ def sendVerificationEmail():
         server.sendmail(sender_email, receiver_email, message.as_string())
 
     return jsonify({"message": "Verification email sent successfully"}), 200
+
+@app.route('/likePost', methods=['POST'])
+def like_post():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+    post_id = data.get('post_id')
+    username = data.get('username').lower()
+    print(username)
+
+    cursor.execute("SELECT user_id FROM users WHERE username = ?",(username,))
+    user_id_record = cursor.fetchone()
+    
+    if not user_id_record:
+        print("1")
+        return jsonify({"error": "User Does Not Exist"}), 400
+    user_id = user_id_record[0]
+
+    cursor.execute("SELECT * FROM post_likes WHERE post_id=? AND user_id=?", (post_id, user_id))
+    like = cursor.fetchone()
+
+    if like:
+        print("2")
+        return jsonify({"message": "User has already liked this post"}), 400
+
+    cursor.execute("INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)", (post_id, user_id))
+    conn.commit()
+    return jsonify({"message": "Post liked successfully"}), 200
+
+
+@app.route('/commentOnPost', methods=['POST'])
+def comment_on_post():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+    post_id = data.get('post_id')
+    username = data.get('username')
+    comment = data.get('comment')
+
+    print(post_id)
+    print(username)
+    print(comment)
+
+    # Convert username to user_id
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id_record = cursor.fetchone()
+    if not user_id_record:
+        return jsonify({"error": "User does not exist"}), 400
+    user_id = user_id_record[0]
+
+
+    cursor.execute("INSERT INTO post_comments (post_id, user_id, comment) VALUES (?, ?, ?)", (post_id, user_id, comment))
+    conn.commit()
+    return jsonify({"message": "Comment added successfully"}), 200
+
+@app.route('/unlikePost', methods=['POST'])
+def unlike_post():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+
+    username = data.get('username')
+    post_id = data.get('post_id')
+
+    # Convert username to user_id
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id_record = cursor.fetchone()
+    if not user_id_record:
+        return jsonify({"error": "User does not exist"}), 400
+    user_id = user_id_record[0]
+
+    # Remove the like from the post_likes table
+    cursor.execute("DELETE FROM post_likes WHERE user_id = ? AND post_id = ?", (user_id, post_id))
+    conn.commit()
+
+    return jsonify({"message": "Post unliked successfully"}), 200
+
+@app.route('/getPostLikes', methods=['GET'])
+def get_post_likes():
+    conn = db_connection()
+    cursor = conn.cursor()
+    post_id = request.args.get('post_id')
+
+    if not post_id:
+        return jsonify({"error": "Missing post_id parameter"}), 400
+
+    try:
+        # Cast post_id to integer to prevent SQL injection
+        post_id = int(post_id)
+    except ValueError:
+        return jsonify({"error": "Invalid post_id parameter"}), 400
+
+    cursor.execute("SELECT COUNT(*) FROM post_likes WHERE post_id = ?", (post_id,))
+    likes_count = cursor.fetchone()[0]
+
+    return jsonify({"post_id": post_id, "likes_count": likes_count}), 200
+
 
 
 if __name__ == '__main__':

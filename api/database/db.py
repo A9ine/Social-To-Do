@@ -99,6 +99,30 @@ create_posts_table = """
     );
 """
 
+create_post_likes_table = """
+    CREATE TABLE IF NOT EXISTS post_likes (
+        like_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        liked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (post_id) REFERENCES posts(post_id),
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+"""
+
+create_post_comments_table = """
+    CREATE TABLE IF NOT EXISTS post_comments (
+        comment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        comment TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (post_id) REFERENCES posts(post_id),
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+"""
+
 
 # Execute each SQL statement
 cursor.execute(create_users_table)
@@ -109,6 +133,8 @@ cursor.execute(create_groups_table)
 cursor.execute(create_group_members_table)
 cursor.execute(create_chat_messages_table)
 cursor.execute(create_posts_table)
+cursor.execute(create_post_likes_table)
+cursor.execute(create_post_comments_table)
 
 # Commit the changes and close the connection
 conn.commit()
