@@ -7,6 +7,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 const AddTaskScreen = ({ navigation }) => {
   const [subject, setSubject] = useState('');
   const [task, setTask] = useState('');
+  const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -65,47 +66,83 @@ const AddTaskScreen = ({ navigation }) => {
       setTask(text);
     }
   };
+  const onSubjectChange = (text) => {
+    if (text.split(/\s+/).length <= 50) { // Limit to 50 words
+      setSubject(text);
+    }
+  };
+  const onCategoryChange = (text) => {
+    if (text.split(/\s+/).length <= 10) { // Limit to 10
+      setCategory(text);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Task Description:</Text>
-      <TextInput
-        style={styles.textArea}
-        value={task}
-        onChangeText={onTaskChange}
-        multiline
-        numberOfLines={4}
-        placeholder="Enter task description (up to 50 words)"
-      />
-
-      <View style={styles.dateTimeRow}>
-        <Text style={styles.label}>Due Date: </Text>
-        <Text style={styles.dateText}>{formatDateAndTime(dueDate)}</Text>
+      <View style={[styles.modal, {height: 75}]}> 
+        <Text style={styles.title}>Task Name</Text>
+        <TextInput
+          style= {styles.input}
+          value={subject}
+          onChangeText={onSubjectChange}
+          placeholder="Name your task"
+        />
+      </View>
+      <View style={[styles.modal, {height: 130}]}> 
+        <Text style={styles.title}>Description</Text>
+        <TextInput
+          style={[styles.input, { fontSize: 14, paddingTop: 8, paddingBottom: 8 }]} 
+          value={task}
+          onChangeText={onTaskChange}
+          multiline 
+          numberOfLines={4}
+          placeholder="Enter task description"
+        />
       </View>
 
-      {showDatePicker && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={dueDate}
-          mode={mode}
-          is24Hour={true}
-          display="default"
-          onChange={onChangeDueDate}
-        />
-      )}
-
+      <View style={[styles.modal, {height: 75}]}>
+        <Text style={styles.title}>Due Date </Text>
+        <Text style={styles.input}>{formatDateAndTime(dueDate)}</Text>
+      </View>
       <View style={styles.datePickerContainer}>
         <TouchableOpacity style={styles.smallButton} onPress={() => showMode('date')}>
           <Text style={styles.buttonText}>Set Date</Text>
+          {showDatePicker && mode === 'date' && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={dueDate}
+            mode="date"
+            is24Hour={true}
+            display="default"
+            onChange={onChangeDueDate}
+          />
+          )}
         </TouchableOpacity>
         <TouchableOpacity style={styles.smallButton} onPress={() => showMode('time')}>
           <Text style={styles.buttonText}>Set Time</Text>
+          {showDatePicker && mode === 'time' && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={dueDate}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={onChangeDueDate}
+          />
+        ) }
         </TouchableOpacity>
       </View>
-
+      <View style={[styles.modal, {height: 75, marginTop: 10}]}> 
+        <Text style={styles.title}>Add category</Text>
+        <TextInput
+          style= {styles.input}
+          value={category}
+          onChangeText={onCategoryChange}
+        />
+      </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleAddTask}>
-          <Text style={styles.buttonText}>Add Task</Text>
+          <Text style={styles.addTextButton}>Add Task</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -115,36 +152,27 @@ const AddTaskScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    justifyContent: 'center',
-    backgroundColor: '#F3F3F7',
+    padding: 5,
+    paddingTop: 7,
+    backgroundColor: '#F9EFFF',
   },
-  label: {
-    fontSize: 18,
-    marginBottom: 10,
+  title: {
+    fontSize: 15,
+    paddingBottom: 5,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#cccccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
+    fontSize: 20,
   },
   datePickerContainer: {
-    flexDirection: 'column',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  dateText: {
-    fontSize: 18,
-    marginBottom: 10,
+    
   },
   button: {
     backgroundColor: '#8A2BE2',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+    padding: 15,
+    borderRadius: 10,
     width: '80%',
     alignItems: 'center',
   },
@@ -152,33 +180,34 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  addTextButton: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20
+  },
   smallButton: {
     backgroundColor: '#a29bfe',
-    padding: 8,
-    borderRadius: 5,
-    marginTop: 10,
-    width: '30%',
+    padding: 15,
+    borderRadius: 20,
+    width: '40%',
     alignItems: 'center',
   },
 
-  dateTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  textArea: {
-    borderWidth: 1,
-    borderColor: '#cccccc',
-    borderRadius: 5,
-    padding: 10,
-    height: 100, // Increased height for the text area
-    textAlignVertical: 'top',
-    marginBottom: 20,
-  },
   buttonContainer: {
     alignItems: 'center',
     width: '100%',
   },
+  modal: { 
+    marginBottom: 20,
+    marginHorizontal: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    padding: 15,
+  }
 });
 
 export default AddTaskScreen;
