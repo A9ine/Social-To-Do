@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [posts, setPosts] = useState([]);
+  
   const [pendingFriends, setPendingFriends] = useState([]);
 
   useFocusEffect(
