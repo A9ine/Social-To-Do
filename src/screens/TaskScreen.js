@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Alert, TextInput, Image } from 'react-native';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -9,13 +9,34 @@ const TaskScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
   const route = useRoute(); // Use the useRoute hook to access the route parameters
   const [usernameParam, setUsernameParam] = useState(route.params?.username);
+  const [firstName, setFirstName] =  useState('');
+  const formatDate = () => {
+    const date = new Date();
+    return date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' });
+  };
+  const [searchQuery, setSearchQuery] = useState('');
+  const filteredTasks = tasks.filter(task => 
+    task.task_description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const [dueDate, setDueDate] = useState(new Date());
+  // const dueDateString = dueDate.toISOString();
+
+  const formatDateAndTime = (date) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    return `${date.toDateString()} ${hours}:${minutes < 10 ? '0' + minutes : minutes}`;
+  };
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchTasks = async () => {
+      const fetchData = async () => {
         try {
           // Use the passed-in username if available; otherwise, fetch from AsyncStorage
           const usernameToUse = usernameParam || await AsyncStorage.getItem('username');
+          const storedFirstName = await AsyncStorage.getItem('first_name');
+          setFirstName(storedFirstName);
+
           if (usernameToUse) {
             const response = await axios.get('http://127.0.0.1:2323/getIncompletedTasks', {
               params: { username: usernameToUse }
@@ -34,21 +55,38 @@ const TaskScreen = ({ navigation }) => {
         }
       };
 
-      fetchTasks();
+      fetchData();
     }, [usernameParam])
   );
 
   const renderTask = ({ item }) => (
-    <View style={styles.taskItem}>
+    <View style={styles.modal}>
       <Text style={styles.taskText}>{item.task_description}</Text>
-      <Text>Due: {item.due_date}</Text>
+      <View style={styles.taskInfo}>
+        <Image
+              style={styles.navIcon}
+              source={require('../assets/time.png')} 
+        />
+        <Text>{formatDateAndTime(dueDate)}</Text>
+      </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
+      {firstName && <Text style={styles.helloText}>Hello {firstName}</Text>}
+      <Text style={styles.dateText}>{formatDate()}</Text>
+      <View style={styles.modal}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search tasks..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+      <Text style={styles.upcoming}>Upcoming</Text>
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         renderItem={renderTask}
         keyExtractor={(item) => item.task_id.toString()}
       />
@@ -66,17 +104,30 @@ const TaskScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
-    backgroundColor: '#f3f3f9', // Light grey background for contrast with purple elements
+    backgroundColor: '#F9EFFF', // Light grey background for contrast with purple elements
   },
-  taskItem: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#a29bfe', // Light purple for subtle separation of tasks
-    backgroundColor: '#f8f8ff', // Very light purple for task items
+  helloText: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    paddingTop: 10,
+    marginHorizontal: 15,
+    marginBottom: 5
   },
+  dateText: {
+    fontSize: 15,
+    marginHorizontal: 15,
+    paddingBottom: 15,
+  },
+  upcoming: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginHorizontal: 15,
+    marginBottom: 10,
+  },
+
   taskText: {
     fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 5,
     color: '#6c5ce7', // Darker purple for task text for readability
   },
@@ -101,6 +152,28 @@ const styles = StyleSheet.create({
   dueDateText: {
     fontSize: 14,
     color: '#a29bfe', // Light purple for less important information like due dates
+  },
+
+  modal: { 
+    marginBottom: 20,
+    marginHorizontal: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    padding: 15,
+  },
+  navIcon: {
+    width: 20, 
+    height: 20, 
+    marginRight: 5, 
+
+  },
+  taskInfo: {
+    flexDirection: 'row',
+    alignItems: 'center', 
   },
 });
 
