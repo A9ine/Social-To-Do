@@ -449,20 +449,40 @@ def addTask():
     conn.commit()
     return jsonify({"message": "Task added sucessfully"}), 200
 
+# Helper method for match_tasks
+def get_friends_list(user_id):
+    conn = db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT u.user_id, u.username
+        FROM users u
+        JOIN friends f ON u.user_id = f.friend_id OR u.user_id = f.user_id
+        WHERE (f.user_id = ? OR f.friend_id = ?) AND u.user_id != ? AND f.status = 'accepted'
+    """, (user_id, user_id, user_id))
+
+    friends = cursor.fetchall()
+    return friends
+    
+# Helper method for match_tasks
+def get_incompleted_tasks(user_id):
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM tasks WHERE (user_id = ? AND completed = ?)", (user_id, False))
+    tasks = cursor.fetchall()
+
+    # tasks_list = []
+    # for task in tasks:
+    #      tasks_list.append((task[2],task[3],task[7],task[6]))
+    return tasks
 
 # match tasks
 @app.route('/matchTasks', methods=['GET'])
 def matchTasks():
     conn = db_connection()
     cursor = conn.cursor()
-
     username = request.args.get('username', '').lower()
-
-    # data = request.get_json()
-    # username = data.get('username').lower()
-    # task_category = data.get('task_category')
-    # username = request.args.get('username')
-    # task_category = request.args.get('task_category')
 
     # Get the user ID for the given username
     cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
@@ -471,42 +491,69 @@ def matchTasks():
         return jsonify({"error": "User not found"}), 404
     user_id = user_id_record[0]
 
+    user_tasks = get_incompleted_tasks(user_id)
+    friends_list = get_friends_list(user_id)
+
+    match_tasks = []
+    for user_task in user_tasks:
+        for friend_id, friend_username in friends_list:
+            friend_tasks = get_incompleted_tasks(friend_id)
+            for friend_task in friend_tasks:
+                if user_task[2] == friend_task[2]:
+                    user_task_reformat = ({
+                        f"Your task": {
+                            "task_id": user_task[0],
+                            "description": user_task[3],
+                            "category": user_task[2]
+                        }
+                    })
+                    if match_tasks.count(user_task_reformat) < 1:
+                        match_tasks.append(user_task_reformat)
+                    match_tasks.append ({
+                        f"{friend_username}'s task": {
+                            "task_id": friend_task[0],
+                            "description": friend_task[3],
+                            "category": friend_task[2]
+                        }
+                    })
+    return match_tasks
+
+    #return jsonify({"matched_tasks": matched_tasks}), 200
+
+    # #cursor.execute("""
+    # #    SELECT t1.task, t1.task_category, t2.task AS friend_task, t2.task_category
+    # #    FROM tasks t1
+    # #    JOIN friends f ON (t1.user_id = f.user_id OR t1.user_id = f.friend_id)
+    # #    JOIN tasks t2 ON (f.friend_id = t2.user_id OR f.user_id = t2.user_id) AND t1.task_category = t2.task_category
+    # #    WHERE (t1.user_id = ?) AND t1.task_id != t2.task_id AND f.status = 'accepted'
+    # #""", (user_id,))
+
+    # cursor.execute("""
+    #     SELECT t1.task AS user_task, t1.task_category, t2.task AS friend_task, t2.task_category, u.username AS friend_username
+    #     FROM tasks t1
+    #     JOIN friends f ON (t1.user_id = f.user_id OR t1.user_id = f.friend_id)
+    #     JOIN tasks t2 ON (f.friend_id = t2.user_id OR f.user_id = t2.user_id) AND t1.task_category = t2.task_category
+    #     JOIN users u ON (t2.user_id = u.user_id OR t2.user_id = f.friend_id)  -- Make sure this line is correctly joining the users table
+    #     WHERE t1.user_id = ? AND t1.task_id != t2.task_id AND f.status = 'accepted'
+    # """, (user_id,))
     
-    #cursor.execute("""
-    #    SELECT t1.task, t1.task_category, t2.task AS friend_task, t2.task_category
-    #    FROM tasks t1
-    #    JOIN friends f ON (t1.user_id = f.user_id OR t1.user_id = f.friend_id)
-    #    JOIN tasks t2 ON (f.friend_id = t2.user_id OR f.user_id = t2.user_id) AND t1.task_category = t2.task_category
-    #    WHERE (t1.user_id = ?) AND t1.task_id != t2.task_id AND f.status = 'accepted'
-    #""", (user_id,))
+    # matched_tasks = cursor.fetchall()
+    # formatted_tasks = []
 
-    cursor.execute("""
-        SELECT t1.task AS user_task, t1.task_category, t2.task AS friend_task, t2.task_category, u.username AS friend_username
-        FROM tasks t1
-        JOIN friends f ON (t1.user_id = f.user_id OR t1.user_id = f.friend_id)
-        JOIN tasks t2 ON (f.friend_id = t2.user_id OR f.user_id = t2.user_id) AND t1.task_category = t2.task_category
-        JOIN users u ON (t2.user_id = u.user_id OR t2.user_id = f.friend_id)  -- Make sure this line is correctly joining the users table
-        WHERE t1.user_id = ? AND t1.task_id != t2.task_id AND f.status = 'accepted'
-    """, (user_id,))
-    
-    matched_tasks = cursor.fetchall()
-    formatted_tasks = []
+    # for task in matched_tasks:
+    #     formatted_task = {
+    #         "Your task": {
+    #             "category": task[1],
+    #             "description": task[0]
+    #         },
+    #         f"{task[4]}'s task": {  # Ensure task[4] is correctly retrieving the friend's username
+    #             "category": task[3],
+    #             "description": task[2]
+    #         }
+    #     }
+    # formatted_tasks.append(formatted_task)
+    # return jsonify({"matched_tasks": formatted_tasks}), 200
 
-    for task in matched_tasks:
-        formatted_task = {
-            "Your task": {
-                "category": task[1],
-                "description": task[0]
-            },
-            f"{task[4]}'s task": {  # Ensure task[4] is correctly retrieving the friend's username
-                "category": task[3],
-                "description": task[2]
-            }
-        }
-    formatted_tasks.append(formatted_task)
-
-
-    return jsonify({"matched_tasks": formatted_tasks}), 200
 
 # mark task as done
 
@@ -530,10 +577,11 @@ def getIncompletedTasks():
     tasks_list = [
         {
             'task_id' : task[0],
-            'task_description' : task[2],
-            'due_date' : task[5],
-            'completed': task[6],
-            'created_at' : task[3]
+            # 'task_category' : task[2],
+            'task_description' : task[3],
+            'due_date' : task[6],
+            'completed': task[7],
+            'created_at' : task[4]
         }
         for task in tasks
     ]
