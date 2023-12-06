@@ -79,7 +79,7 @@ const AddTaskScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.modal, {height: 130}]}> 
+      <View style={[styles.modal, {height: 150}]}> 
         <Text style={styles.title}>Task</Text>
         <TextInput
           style={[styles.input, { fontSize: 14, paddingTop: 8, paddingBottom: 8 }]} 
@@ -91,7 +91,7 @@ const AddTaskScreen = ({ navigation }) => {
         />
       </View>
 
-      <View style={[styles.modal, {height: 75}]}>
+      <View style={[styles.modal, {height: 80}]}>
         <Text style={styles.title}>Due Date </Text>
         <Text style={styles.input}>{formatDateAndTime(dueDate)}</Text>
       </View>
@@ -123,7 +123,7 @@ const AddTaskScreen = ({ navigation }) => {
         ) }
         </TouchableOpacity>
       </View>
-      <View style={[styles.modal, {height: 75, marginTop: 10}]}> 
+      <View style={[styles.modal, {height: 75, marginTop: 20}]}> 
         <Text style={styles.title}>Add category</Text>
         <TextInput
           style= {styles.input}
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 5,
-    paddingTop: 7,
+    paddingTop: 40,
     backgroundColor: '#F9EFFF',
   },
   title: {
