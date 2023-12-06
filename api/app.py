@@ -494,6 +494,7 @@ def matchTasks():
     user_tasks = get_incompleted_tasks(user_id)
     friends_list = get_friends_list(user_id)
 
+    # add due date
     match_tasks = []
     for user_task in user_tasks:
         for friend_id, friend_username in friends_list:
@@ -516,7 +517,7 @@ def matchTasks():
                             "category": friend_task[2]
                         }
                     })
-    return match_tasks
+    return jsonify(match_tasks)
 
     #return jsonify({"matched_tasks": matched_tasks}), 200
 
@@ -560,9 +561,15 @@ def getTaskCategories():
     conn = db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT category_name FROM task_categories")
+    cursor.execute("SELECT * FROM task_categories")
     task_categories = cursor.fetchall()
-    return task_categories
+    task_cats = []
+    for cat_id, cat_name in task_categories:
+        task_cats.append({
+            "category_id": cat_id,
+            "category_name": cat_name
+        })
+    return jsonify(task_cats)
 
 # mark task as done
 
