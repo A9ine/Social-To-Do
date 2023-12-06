@@ -431,7 +431,7 @@ def addTask():
     cursor = conn.cursor()
     data = request.get_json()
     user = data.get('username').lower()
-    task = data.get('task')
+    task = data.get('task').strip()
     due_date = data.get("due_date")
 
     if not user or not task or not due_date:
@@ -471,7 +471,7 @@ def getIncompletedTasks():
     tasks_list = [
         {
             'task_id' : task[0],
-            'task_description' : task[2],
+            'task_description' : task[2].strip(),
             'due_date' : task[5],
             'completed': task[6],
             'created_at' : task[3]
@@ -521,7 +521,7 @@ def getAllTasks():
     tasks_list = [
         {
             'task_id' : task[0],
-            'task_description' : task[2],
+            'task_description' : task[2].strip(),
             'due_date' : task[5],
             'completed': task[6],
             'created_at' : task[3]
