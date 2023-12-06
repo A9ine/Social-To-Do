@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Alert, TextInput, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Alert, TextInput, Image, TouchableOpacity } from 'react-native';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -91,20 +91,20 @@ const TaskScreen = ({ navigation }) => {
         keyExtractor={(item) => item.task_id.toString()}
       />
       {!usernameParam && ( // Only show the Add New Task button if a username was not passed in
-        <Button onPress={() => navigation.navigate('AddTaskScreen')}>
-          Add New Task
-        </Button>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddTaskScreen')}>
+          <Text style={styles.addTextButton}>Add New Task</Text>
+        </TouchableOpacity>
+      </View>
       )}
     </View>
   );
 };
 
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9EFFF', // Light grey background for contrast with purple elements
+    backgroundColor: '#F9EFFF', 
   },
   helloText: {
     fontSize: 25,
@@ -139,19 +139,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 10,
   },
-  buttonText: {
-    color: '#ffffff', // White text on button
-    fontWeight: 'bold',
-  },
+
   titleText: {
     fontSize: 22,
     color: '#6c5ce7', // Dark purple for titles
     textAlign: 'center',
     marginVertical: 10,
-  },
-  dueDateText: {
-    fontSize: 14,
-    color: '#a29bfe', // Light purple for less important information like due dates
   },
 
   modal: { 
@@ -175,7 +168,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center', 
   },
+  buttonContainer: {
+    alignItems: 'center',
+    width: '100%',
+    padding: 10,
+  },
+  button: {
+    backgroundColor: '#8A2BE2',
+    padding: 15,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  addTextButton: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20
+  },
 });
-
 
 export default TaskScreen;
