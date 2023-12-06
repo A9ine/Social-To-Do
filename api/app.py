@@ -554,6 +554,15 @@ def matchTasks():
     # formatted_tasks.append(formatted_task)
     # return jsonify({"matched_tasks": formatted_tasks}), 200
 
+# Retrive Task Categories
+@app.route('/getTaskCategories', methods=['GET'])
+def getTaskCategories():
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT category_name FROM task_categories")
+    task_categories = cursor.fetchall()
+    return task_categories
 
 # mark task as done
 
