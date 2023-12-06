@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, Alert, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Button, Alert, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import SocialPost from '../components/SocialPost';
@@ -182,6 +182,25 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+  
+      {/* Top Navigation Bar */}
+      <View style={styles.topNavBar}>
+        <TouchableOpacity onPress={navigateToSettings}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/settings.png')} // Replace with your settings icon image
+          />
+        </TouchableOpacity>
+        <Text style={styles.navTitle}>Home</Text>
+        <TouchableOpacity onPress={navigateToChat}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/chat.png')} // Replace with your chat icon image
+          />
+        </TouchableOpacity>
+      </View>
+  
+      {/* Posts Container */}
       <ScrollView style={styles.postsContainer}>
         {posts.map((post, index) => (
           <SocialPost
@@ -194,41 +213,56 @@ const HomeScreen = ({ navigation }) => {
             comments={post.comments}
             onLikePress={() => handleLikePost(post.post_id, post.liked_by_user)}
             onCommentPress={() => handleCommentPost(post.post_id, post.comments)}
-        />
+          />
         ))}
       </ScrollView>
+  
+      {/* Bottom Navigation Bar */}
+      <View style={styles.bottomNavBar}>
+        <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/home.png')} // Replace with your home icon image
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleMakePost}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/createPost.png')} // Create post icon image
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleTask}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/tasks.png')} // Tasks icon image
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleFriends}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/friends.png')} // Friends icon image
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSignOut}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/signOut.png')} // Sign out icon image
+          />
+        </TouchableOpacity>
+      </View>
+  
+      {/* Notifications and Chat Buttons */}
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleMakePost}>
-          <Text style={styles.buttonText}>Make Post</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={navigateToSettings}>
-          <Text style={styles.buttonText}>Settings</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleTask}>
-          <Text style={styles.buttonText}>Tasks</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleFriends}>
-          <Text style={styles.buttonText}>Friends</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleSignOut}>
-          <Text style={styles.buttonText}>Sign Out</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           style={pendingFriends && pendingFriends.length > 0 ? styles.notificationButtonActive : styles.notificationButton}
           onPress={navigateToNotifications}
         >
           <Text style={styles.buttonText}>Notifications</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.chatButton}
-          onPress={navigateToChat}
-        >
-          <Text style={styles.buttonText}>Chat</Text>
-        </TouchableOpacity>
-
       </View>
+  
     </View>
-  );
+  );  
 };
 
 const styles = StyleSheet.create({
@@ -236,6 +270,48 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F3F3F7',
     position: 'relative',
+  },
+  topNavBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  navTitle: {
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
+  navIcon: {
+    width: 30, // Adjusted for optimal size
+    height: 30, // Adjusted for optimal size
+    resizeMode: 'contain',
+  },
+  bottomNavBar: {
+    flexDirection: 'row', // Ensures horizontal layout
+    justifyContent: 'space-around', // Evenly spaces the icons
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopWidth: 1,
+    borderTopColor: '#EFEFEF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  postsContainer: {
+    flex: 1,
   },
   postsContainer: {
     flex: 1,
