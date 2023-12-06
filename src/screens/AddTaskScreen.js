@@ -79,17 +79,8 @@ const AddTaskScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.modal, {height: 75}]}> 
-        <Text style={styles.title}>Task Name</Text>
-        <TextInput
-          style= {styles.input}
-          value={subject}
-          onChangeText={onSubjectChange}
-          placeholder="Name your task"
-        />
-      </View>
       <View style={[styles.modal, {height: 130}]}> 
-        <Text style={styles.title}>Description</Text>
+        <Text style={styles.title}>Task</Text>
         <TextInput
           style={[styles.input, { fontSize: 14, paddingTop: 8, paddingBottom: 8 }]} 
           value={task}

@@ -176,17 +176,6 @@ const FriendsScreen = ({ navigation }) => {
         <Text style={styles.addButtonText}>Add Friend</Text>
       </TouchableOpacity>
 
-    {/* Friends List */}
-    <FlatList
-        data={friends}
-        keyExtractor={(item) => item.friend_id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.friendItem} onPress={() => handleFriendOptions(item.friend_username)}>
-            <Text>{item.friend_username}</Text>
-          </TouchableOpacity>
-        )}
-      />
-
     {/* Bottom Navigation Bar */}
     <View style={styles.bottomNavBar}>
         <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
