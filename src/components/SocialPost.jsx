@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count, location }) => {
   const likeIcon = liked ? require('../assets/liked_like_icon.jpg') : require('../assets/unliked_like_icon.png');
+  const likeIconStyle = liked ? styles.likedIcon : styles.actionIcon;
   const commentIcon = require('../assets/comment.png');
 
   const renderViewMoreComments = () => {
@@ -31,13 +32,15 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <View style={styles.avatar}></View>
-        <Text style={styles.username}>{text}</Text>
+        <View style={styles.userInfoContainer}>
+    <Text style={styles.username}>{text}</Text>
+    {renderLocation()}
+  </View>
       </View>
-      {renderLocation()}
       <Image source={{ uri: pictureUrl }} style={styles.image} />
       <View style={styles.actionsContainer}>
-        <TouchableOpacity onPress={onLikePress}>
-          <Image source={likeIcon} style={styles.actionIcon} />
+        <TouchableOpacity onPress={onLikePress}> 
+          <Image source={likeIcon} style={likeIconStyle} />
         </TouchableOpacity>
         <TouchableOpacity onPress={onCommentPress}>
           <Image source={commentIcon} style={styles.actionIcon} />
@@ -91,6 +94,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+
+  location: {
+    fontSize: 13,
+    marginLeft: 20,
+    right: 20
+  },
+
   image: {
     width: '100%',
     aspectRatio: 1, // Keep the aspect ratio of the image as 1:1
@@ -107,12 +117,20 @@ const styles = StyleSheet.create({
   actionIcon: {
     width: 25,
     height: 25,
-    marginRight: 10,
+    marginHorizontal: 4,
   },
+
+  likedIcon: {
+    width: 28,
+    height: 28,
+    marginHorizontal: 4
+  },
+
   likes: {
     fontWeight: 'bold',
-    marginVertical: 5,
+    marginVertical: 4,
   },
+
   comment: {
     fontSize: 14,
     marginVertical: 2,
@@ -127,12 +145,6 @@ const styles = StyleSheet.create({
   viewMoreText: {
     color: '#8E8E8E', // Instagram-like color for the "view more" text
     fontSize: 14,
-  },
-  location: {
-    color: '#8E8E8E', // Grey color for the location text
-    fontSize: 12,
-    marginLeft: 10, // Align with the username
-    marginBottom: 5, // Space before the image
   },
 });
 
