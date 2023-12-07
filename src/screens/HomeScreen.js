@@ -279,11 +279,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 5,
   },
   navTitle: {
     fontWeight: 'bold',
@@ -292,7 +287,6 @@ const styles = StyleSheet.create({
   navIcon: {
     width: 25, // Adjusted for optimal size
     height: 25, // Adjusted for optimal size
-    resizeMode: 'contain',
   },
   taskNavIcon: {
     width: 50, 
@@ -319,12 +313,9 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
+  
   postsContainer: {
     flex: 1,
-  },
-  postsContainer: {
-    flex: 1,
-    marginTop: 20,
   },
   buttonsContainer: {
     flexDirection: 'row',
