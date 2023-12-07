@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const AddTaskScreen = ({ navigation }) => {
+const AddTaskScreen = ({ route, navigation }) => {
   const [subject, setSubject] = useState('');
   const [task, setTask] = useState('');
   const [category, setCategory] = useState('');
@@ -12,11 +12,21 @@ const AddTaskScreen = ({ navigation }) => {
   const [mode, setMode] = useState('date');
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  useEffect(() => {
+    if (route.params?.task) {
+      // If there is a task passed in the route parameters, set the fields
+      const { task_description, due_date, category } = route.params.task;
+      setTask(task_description);
+      setDueDate(new Date(due_date));
+      setCategory(category);
+    }
+  }, [route.params?.task]);
+  
   const handleAddTask = async () => {
     const username = await AsyncStorage.getItem('username');
     
     if (!username) {
-      Alert.alert('Error', 'You must be logged in to add a task.');
+      Alert.alert('Error', 'You must be logged in to add or update a task.');
       return;
     }
   
@@ -27,22 +37,41 @@ const AddTaskScreen = ({ navigation }) => {
   
     const dueDateString = dueDate.toISOString();
   
+    // Determine whether to add a new task or update an existing one
+    const isUpdate = !!route.params?.task;
+  
     try {
-      const response = await axios.post('http://127.0.0.1:2323/addTask', {
-        username: username.toLowerCase(),
-        task: task,
-        due_date: dueDateString
-      });
+      let response;
+  
+      if (isUpdate) {
+        // Update task
+        const updateData = {
+          task_id: route.params.task.task_id,
+          new_description: task,
+          new_due_date: dueDateString
+        };
+        response = await axios.put('http://127.0.0.1:2323/editTask', updateData);
+      } else {
+        // Add new task
+        const newData = {
+          username: username.toLowerCase(),
+          task: task,
+          due_date: dueDateString,
+        };
+        response = await axios.post('http://127.0.0.1:2323/addTask', newData);
+      }
   
       if (response.status === 200) {
-        Alert.alert('Success', 'Task added successfully');
+        const successMessage = isUpdate ? 'Task updated successfully' : 'Task added successfully';
+        Alert.alert('Success', successMessage);
         navigation.goBack();
       }
     } catch (error) {
-      console.error('Add task error:', error);
-      Alert.alert('Error', 'Failed to add the task');
+      console.error('Task operation error:', error);
+      Alert.alert('Error', `Failed to ${isUpdate ? 'update' : 'add'} the task`);
     }
   };
+  
 
   const onChangeDueDate = (event, selectedDate) => {
     const currentDate = selectedDate || dueDate;
