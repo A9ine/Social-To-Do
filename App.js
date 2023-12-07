@@ -23,14 +23,14 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'LOGIN' }} />
-        <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ title: 'REGISTER' }} />
+        <Stack.Screen name="Login" component={LoginScreen} options={{ title: '' }} />
+        <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ title: '' }} />
         <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ title: 'Reset Password' }} />
-        <Stack.Screen name="HomeScreen" component={HomeScreen}  />
+        <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ title: '', headerLeft:() => null }} />
         <Stack.Screen name="MakePostScreen" component={MakePostScreen} />
         <Stack.Screen name="TaskScreen" component={TaskScreen} options={{ title: 'TASKS' }}/>
         <Stack.Screen name="AddTaskScreen" component={AddTaskScreen} options={{ title: 'Add Task' }} />
-        <Stack.Screen name="SettingScreen" component={SettingScreen} options={{ title: 'SETTING' }} />
+        <Stack.Screen name="SettingScreen" component={SettingScreen} options={{ title: '' }} />
         <Stack.Screen name="AddFriendScreen" component={AddFriendScreen} />
         <Stack.Screen name="FriendsScreen" component={FriendsScreen} />
         <Stack.Screen name="NotificationsScreen" component={NotificationsScreen}/>
