@@ -100,9 +100,11 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  
   const navigateToSettings = () => {
     navigation.navigate('SettingScreen'); //navigating to SettingScreen
   }
+
 
   const navigateToChat = () => {
     navigation.navigate('ChatListScreen'); 
@@ -186,10 +188,10 @@ const HomeScreen = ({ navigation }) => {
   
       {/* Top Navigation Bar */}
       <View style={styles.topNavBar}>
-        <TouchableOpacity onPress={navigateToSettings}>
+        <TouchableOpacity onPress={navigateToNotifications}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/settings.png')} // Replace with your settings icon image
+            source={require('../assets/notification.png')} // Replace with your settings icon image
           />
         </TouchableOpacity>
         <Text style={styles.navTitle}>Home</Text>
