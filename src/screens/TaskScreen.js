@@ -20,7 +20,6 @@ const TaskScreen = ({ navigation }) => {
   );
 
   const [dueDate, setDueDate] = useState(new Date());
-  // const dueDateString = dueDate.toISOString();
 
   const formatDateAndTime = (date) => {
     const hours = date.getHours();
@@ -60,6 +59,7 @@ const TaskScreen = ({ navigation }) => {
   );
 
   const renderTask = ({ item }) => (
+    <TouchableOpacity onPress={() => navigation.navigate('AddTaskScreen', { task: item })}>
     <View style={styles.modal}>
       <Text style={styles.taskText}>{item.task_description}</Text>
       <View style={styles.taskInfo}>
@@ -70,21 +70,33 @@ const TaskScreen = ({ navigation }) => {
         <Text>{formatDateAndTime(dueDate)}</Text>
       </View>
     </View>
+    </TouchableOpacity>
+
   );
+  const renderContent = () => {
+    if (filteredTasks.length === 0) {
+      return (
+        <View style={styles.emptyTasksContainer}>
+          <Text style={[styles.emptyTasksText , {fontSize: 30}]}>🥺👉👈</Text>
+          <Text style={[styles.emptyTasksText, {fontWeight: 'bold'}]}>Nothing to do?</Text>
+          <Text style={styles.emptyTasksText}>Check back after your first task!</Text>
+        </View>
+      );
+    } else {
+      return (
+        <FlatList
+          data={filteredTasks}
+          renderItem={renderTask}
+          keyExtractor={(item) => item.task_id.toString()}
+        />
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
-    {/* Conditional rendering based on usernameParam */}
-    {usernameParam ? (
-      <Text style={styles.helloText}>{usernameParam}'s tasks include:</Text>
-    ) : (
-      <>
-        {firstName && <Text style={styles.helloText}>Hello, {firstName}</Text>}
-        <Text style={styles.dateText}>{formatDate()}</Text>
-      </>
-    )}
-  
-      {/* Search and task list UI */}
+      {firstName && <Text style={styles.helloText}>Hello {firstName}</Text>}
+      <Text style={styles.dateText}>{formatDate()}</Text>
       <View style={styles.modal}>
         <TextInput
           style={styles.searchInput}
@@ -94,23 +106,16 @@ const TaskScreen = ({ navigation }) => {
         />
       </View>
       <Text style={styles.upcoming}>Upcoming</Text>
-      <FlatList
-        data={filteredTasks}
-        renderItem={renderTask}
-        keyExtractor={(item) => item.task_id.toString()}
-      />
-      
-      {/* Only show the Add New Task button if usernameParam is not provided */}
-      {!usernameParam && (
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddTaskScreen')}>
-            <Text style={styles.addTextButton}>Add New Task</Text>
-          </TouchableOpacity>
-        </View>
+      {renderContent()}
+      {!usernameParam && ( // Only show the Add New Task button if a username was not passed in
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddTaskScreen')}>
+          <Text style={styles.addTextButton}>Add New Task</Text>
+        </TouchableOpacity>
+      </View>
       )}
     </View>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -136,7 +141,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     marginBottom: 10,
   },
-
+  emptyTasksContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 50,
+  },
+  emptyTasksText: {
+    fontSize: 20,
+    textAlign: 'center',
+    padding: 2,
+  },
   taskText: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -181,9 +195,15 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
   },
   buttonContainer: {
+    position: 'absolute',  
+    bottom: 0,         
+    left: 0,            
+    right: 0,            
     alignItems: 'center',
     width: '100%',
     padding: 10,
+    backgroundColor: 'white', 
+
   },
   button: {
     backgroundColor: '#8A2BE2',

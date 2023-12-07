@@ -24,7 +24,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} options={{ title: '' }} />
-        <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ title: '' }} />
+        <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ title: '' }}/>
         <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ title: 'Reset Password' }} />
         <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ title: '', headerLeft:() => null }} />
         <Stack.Screen name="MakePostScreen" component={MakePostScreen} />
