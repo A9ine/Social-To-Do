@@ -86,13 +86,25 @@ const TaskScreen = ({ navigation }) => {
   );
   const renderContent = () => {
     if (filteredTasks.length === 0) {
-      return (
-        <View style={styles.emptyTasksContainer}>
-          <Text style={[styles.emptyTasksText , {fontSize: 30}]}>🥺👉👈</Text>
-          <Text style={[styles.emptyTasksText, {fontWeight: 'bold', color: '#6c5ce7'}]}>Nothing to do?</Text>
-          <Text style={styles.emptyTasksText}>Check back after your first task!</Text>
-        </View>
-      );
+      if (usernameParam) {
+        // When the user is viewing a friend's tasks
+        return (
+          <View style={styles.emptyTasksContainer}>
+            <Text style={[styles.emptyTasksText , {fontSize: 40}]}>🦦</Text>
+            <Text style={styles.emptyTasksText}>Lazy bug!!!!</Text>
+            <Text style={[styles.emptyTasksText, {fontWeight: 'bold', color: '#6c5ce7'}]}>Time to team up with friends!</Text>
+          </View>
+        );
+      } else {
+        // When the user is viewing their own tasks
+        return (
+          <View style={styles.emptyTasksContainer}>
+            <Text style={[styles.emptyTasksText , {fontSize: 30}]}>🥺👉👈</Text>
+            <Text style={[styles.emptyTasksText, {fontWeight: 'bold', color: '#6c5ce7'}]}>Nothing to do?</Text>
+            <Text style={styles.emptyTasksText}>Check back after your first task!</Text>
+          </View>
+        );
+      }
     } else {
       return (
         <FlatList
@@ -103,6 +115,7 @@ const TaskScreen = ({ navigation }) => {
       );
     }
   };
+  
 
   return (
     <View style={styles.container}>
