@@ -64,19 +64,25 @@ const TaskScreen = ({ navigation }) => {
   }, [tasksUpdated]);
 
   const renderTask = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('AddTaskScreen', { task: item, onTaskUpdate: () => setTasksUpdated(true) })}>
-    <View style={styles.modal}>
-      <Text style={styles.taskText}>{item.task_description}</Text>
-      <View style={styles.taskInfo}>
-        <Image
-              style={styles.navIcon}
-              source={require('../assets/time.png')} 
-        />
-        <Text>{formatDateAndTime(new Date(item.due_date))}</Text>
+    <TouchableOpacity 
+      onPress={() => {
+        // Only navigate to AddTaskScreen if usernameParam is not set
+        if (!usernameParam) {
+          navigation.navigate('AddTaskScreen', { task: item, onTaskUpdate: () => setTasksUpdated(true) });
+        }
+      }}
+    >
+      <View style={styles.modal}>
+        <Text style={styles.taskText}>{item.task_description}</Text>
+        <View style={styles.taskInfo}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/time.png')} 
+          />
+          <Text>{formatDateAndTime(new Date(item.due_date))}</Text>
+        </View>
       </View>
-    </View>
     </TouchableOpacity>
-
   );
   const renderContent = () => {
     if (filteredTasks.length === 0) {
@@ -100,7 +106,11 @@ const TaskScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {firstName && <Text style={styles.helloText}>Hello {firstName}</Text>}
+    {usernameParam ? (
+      <Text style={styles.helloText}>{usernameParam}'s tasks</Text>
+    ) : (
+      firstName && <Text style={styles.helloText}>Hello {firstName}</Text>
+    )}
       <Text style={styles.dateText}>{formatDate()}</Text>
       <View style={styles.modal}>
         <TextInput

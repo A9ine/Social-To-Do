@@ -32,7 +32,7 @@ export default function App() {
         <Stack.Screen name="AddTaskScreen" component={AddTaskScreen} options={{ title: 'Add Task' }} />
         <Stack.Screen name="SettingScreen" component={SettingScreen} options={{ title: '' }} />
         <Stack.Screen name="AddFriendScreen" component={AddFriendScreen} />
-        <Stack.Screen name="FriendsScreen" component={FriendsScreen} />
+        <Stack.Screen name="FriendsScreen" component={FriendsScreen} options={{ title: '' }} />
         <Stack.Screen name="NotificationsScreen" component={NotificationsScreen}/>
         <Stack.Screen name="ChatListScreen" component={ChatListScreen} />
         <Stack.Screen name="StartChatScreen" component={StartChatScreen}/>
