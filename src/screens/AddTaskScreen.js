@@ -64,6 +64,9 @@ const AddTaskScreen = ({ route, navigation }) => {
       if (response.status === 200) {
         const successMessage = isUpdate ? 'Task updated successfully' : 'Task added successfully';
         Alert.alert('Success', successMessage);
+        if (isUpdate) {
+          route.params?.onTaskUpdate?.(); // Call the callback to trigger refresh
+        }
         navigation.goBack();
       }
     } catch (error) {

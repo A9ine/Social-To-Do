@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Alert, TextInput, Image, TouchableOpacity } from 'react-native';
-import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -20,46 +19,52 @@ const TaskScreen = ({ navigation }) => {
   );
 
   const [dueDate, setDueDate] = useState(new Date());
+  const [tasksUpdated, setTasksUpdated] = useState(false);
 
   const formatDateAndTime = (date) => {
     const hours = date.getHours();
     const minutes = date.getMinutes();
     return `${date.toDateString()} ${hours}:${minutes < 10 ? '0' + minutes : minutes}`;
   };
+  const fetchData = async () => {
+    try {
+      const usernameToUse = usernameParam || await AsyncStorage.getItem('username');
+      const storedFirstName = await AsyncStorage.getItem('first_name');
+      setFirstName(storedFirstName);
+
+      if (usernameToUse) {
+        const response = await axios.get('http://127.0.0.1:2323/getIncompletedTasks', {
+          params: { username: usernameToUse }
+        });
+        if (response.status === 200) {
+          setTasks(response.data.tasks);
+        } else {
+          Alert.alert('Error', 'Failed to fetch tasks');
+        }
+      } else {
+        Alert.alert('Error', 'Username not found');
+      }
+    } catch (error) {
+      console.error('Fetch tasks error:', error);
+      Alert.alert('Error', 'Failed to fetch tasks due to a network error');
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchData = async () => {
-        try {
-          // Use the passed-in username if available; otherwise, fetch from AsyncStorage
-          const usernameToUse = usernameParam || await AsyncStorage.getItem('username');
-          const storedFirstName = await AsyncStorage.getItem('first_name');
-          setFirstName(storedFirstName);
-
-          if (usernameToUse) {
-            const response = await axios.get('http://127.0.0.1:2323/getIncompletedTasks', {
-              params: { username: usernameToUse }
-            });
-            if (response.status === 200) {
-              setTasks(response.data.tasks);
-            } else {
-              Alert.alert('Error', 'Failed to fetch tasks');
-            }
-          } else {
-            Alert.alert('Error', 'Username not found');
-          }
-        } catch (error) {
-          console.error('Fetch tasks error:', error);
-          Alert.alert('Error', 'Failed to fetch tasks due to a network error');
-        }
-      };
-
       fetchData();
     }, [usernameParam])
   );
 
+  useEffect(() => {
+    if (tasksUpdated) {
+      fetchData();
+      setTasksUpdated(false);
+    }
+  }, [tasksUpdated]);
+
   const renderTask = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('AddTaskScreen', { task: item })}>
+    <TouchableOpacity onPress={() => navigation.navigate('AddTaskScreen', { task: item, onTaskUpdate: () => setTasksUpdated(true) })}>
     <View style={styles.modal}>
       <Text style={styles.taskText}>{item.task_description}</Text>
       <View style={styles.taskInfo}>
@@ -67,7 +72,7 @@ const TaskScreen = ({ navigation }) => {
               style={styles.navIcon}
               source={require('../assets/time.png')} 
         />
-        <Text>{formatDateAndTime(dueDate)}</Text>
+        <Text>{formatDateAndTime(new Date(item.due_date))}</Text>
       </View>
     </View>
     </TouchableOpacity>
