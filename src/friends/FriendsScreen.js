@@ -192,7 +192,7 @@ const FriendsScreen = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity onPress={handleTask}>
           <Image
-            style={styles.navIcon}
+            style={styles.taskNavIcon}
             source={require('../assets/tasks.png')} // Tasks icon image
           />
         </TouchableOpacity>
@@ -229,12 +229,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  navIcon: {
+    width: 25, // Adjusted for optimal size
+    height: 25, // Adjusted for optimal size
+    resizeMode: 'contain',
+  },
+  taskNavIcon: {
+    width: 50, 
+    height: 50, 
+    resizeMode: 'contain',
+    bottom: 30,
+    backgroundColor: '#FFFFFF'
+  },
   bottomNavBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    flexDirection: 'row', // Ensures horizontal layout
+    justifyContent: 'space-around', // Evenly spaces the icons
     backgroundColor: '#FFFFFF',
-    paddingVertical: 10,
+    paddingVertical: 0,
+    paddingTop: 8,
+    position: 'absolute',
+    bottom: -15,
+    left: 0,
+    right: 0,
     borderTopWidth: 1,
     borderTopColor: '#EFEFEF',
     shadowColor: '#000',
@@ -243,12 +259,6 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
-  navIcon: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-
   profileStats: {
     flexDirection: 'row',
     justifyContent: 'space-around',
