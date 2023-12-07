@@ -1078,6 +1078,8 @@ def edit_task():
     new_description = data.get('new_description')
     new_due_date = data.get('new_due_date')  # Assuming the due date can also be updated
 
+    print(task_id)
+
     # Check if the task exists
     cursor.execute("SELECT * FROM tasks WHERE task_id = ?", (task_id,))
     task = cursor.fetchone()
@@ -1086,7 +1088,7 @@ def edit_task():
         # Update the task if it exists
         cursor.execute("""
             UPDATE tasks
-            SET task_description = ?,
+            SET task = ?,
                 due_date = ?
             WHERE task_id = ?
         """, (new_description, new_due_date, task_id))
