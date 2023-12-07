@@ -279,6 +279,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     backgroundColor: '#FFFFFF',
+    marginTop: 30,
   },
   navTitle: {
     fontWeight: 'bold',
@@ -313,7 +314,6 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
-  
   postsContainer: {
     flex: 1,
   },
