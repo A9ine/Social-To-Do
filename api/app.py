@@ -448,6 +448,30 @@ def addTask():
     conn.commit()
     return jsonify({"message": "Task added sucessfully"}), 200
 
+
+@app.route('/deleteTask', methods=['POST'])
+def deleteTask():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+
+    task_id = data.get('task_id')
+
+    if not task_id:
+        return jsonify({"error": "Task ID is required"}), 400
+
+    cursor.execute("SELECT * FROM tasks WHERE task_id = ?", (task_id,))
+    task = cursor.fetchone()
+
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+
+    cursor.execute("DELETE FROM tasks WHERE task_id = ?", (task_id,))
+    conn.commit()
+
+    return jsonify({"message": "Task deleted successfully"}), 200
+
+
     
 # mark task as done
 
