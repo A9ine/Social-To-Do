@@ -692,6 +692,12 @@ def makePost():
     print(data.get('task'))
     task = int(data.get('task'))
     username = data.get('username').lower()
+    loc = data.get('location')
+
+    print(loc)
+
+    if loc == None:
+        loc = None
 
     cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
     user_id_record = cursor.fetchone()
@@ -709,9 +715,9 @@ def makePost():
 
     # Insert the new post into the posts table
     cursor.execute("""
-        INSERT INTO posts (user_id, content, picture, created_at, updated_at)
-        VALUES (?, ?, ?, datetime('now'), datetime('now'))
-    """, (user_id, f'{username} completed: {task_content}', url))
+        INSERT INTO posts (user_id, content, picture, location, created_at, updated_at)
+        VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
+    """, (user_id, f'{username} completed: {task_content}', url, loc))
 
     cursor.execute("UPDATE tasks SET completed = ? WHERE task_id = ?", (True, task))
     conn.commit()
@@ -734,7 +740,7 @@ def retrievePosts():
     user_id = user_id_record[0]
 
     cursor.execute("""
-    SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username
+    SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username, p.location
     FROM posts p
     JOIN users u ON p.user_id = u.user_id
     LEFT JOIN friends f ON ((p.user_id = f.friend_id AND f.user_id = ?) OR (p.user_id = f.user_id AND f.friend_id = ?))
@@ -782,7 +788,8 @@ def retrievePosts():
             'author_username': post[4],
             'liked_by_user': liked,
             'like_count': like_count,  # Add like count here
-            'comments': comments_list
+            'comments': comments_list,
+            'location': post[5]
         })
 
     return jsonify({"posts": posts_list}), 200

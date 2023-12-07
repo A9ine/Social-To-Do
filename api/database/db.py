@@ -95,6 +95,7 @@ create_posts_table = """
         picture TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        location TEXT,
         FOREIGN KEY (user_id) REFERENCES users(user_id)
     );
 """

@@ -214,6 +214,7 @@ const HomeScreen = ({ navigation }) => {
             comments={post.comments}
             onLikePress={() => handleLikePost(post.post_id, post.liked_by_user)}
             onCommentPress={() => handleCommentPost(post.post_id, post.comments)}
+            location = {post.location}
           />
         ))}
       </ScrollView>

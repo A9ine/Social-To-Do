@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, Alert, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Button, Alert, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import * as Camera from 'expo-camera';
@@ -7,11 +7,39 @@ import { storage } from '../core/firebase'; // Import your Firebase storage
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
+import * as Location from 'expo-location';
+
 
 const MakePostScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState('');
   const [tasks, setTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [isPosting, setIsPosting] = useState(false);
+
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission not granted', 'Allow the app to use location service.');
+      return;
+    }
+
+    setIsPosting(true);
+  
+    let location = await Location.getCurrentPositionAsync({});
+    const address = await Location.reverseGeocodeAsync({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
+  
+    const city = address[0].city;
+    const country = address[0].country;
+    
+    console.log(city, country); // This should still print the correct information
+  
+    return `${city}, ${country}`; // Return this string from the function
+  };
+
 
   const fetchTasks = async () => {
     try {
@@ -54,7 +82,7 @@ const MakePostScreen = ({ navigation }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.3,
+      quality: 0.2,
     });
 
     handleImagePicked(result);
@@ -71,7 +99,7 @@ const MakePostScreen = ({ navigation }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.3,
+      quality: 0.2,
     });
 
     handleImagePicked(result);
@@ -89,6 +117,7 @@ const MakePostScreen = ({ navigation }) => {
   
 
   const uploadImage = async () => {
+    const location = await getLocation(); // Now `location` will store the returned value from `getLocation`.
     if (!imageUri) {
       Alert.alert('No Image', 'Please select an image first!');
       return;
@@ -112,17 +141,21 @@ const MakePostScreen = ({ navigation }) => {
         username: username,
         url: downloadURL,
         task: selectedTask,
+        location: location, // Use the local variable directly
       });
   
       if (postResponse.status === 200) {
         Alert.alert('Success', 'Post uploaded successfully');
-        navigation.navigate('HomeScreen')
+        setIsPosting(false); // Enable the button again
+        navigation.navigate('HomeScreen');
       } else {
         Alert.alert('Error', 'Failed to upload post');
+        setIsPosting(false); // Enable the button again
       }
     } catch (e) {
       console.error('Upload error:', e);
       Alert.alert('Error', 'Upload failed');
+      setIsPosting(false); // Enable the button again
     }
   };
   
@@ -147,9 +180,20 @@ const MakePostScreen = ({ navigation }) => {
             </View>
           )}
           <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-          <TouchableOpacity style={styles.button} onPress={uploadImage}>
+          <TouchableOpacity
+          style={[styles.button, isPosting && { backgroundColor: '#ccc' }]} // Change color when posting
+          onPress={uploadImage}
+          disabled={isPosting} // Disable button when posting
+        >
+          {isPosting ? (
+            <>
+              <ActivityIndicator size="small" color="#000" />
+              <Text style={styles.buttonText}>Posting...</Text>
+            </>
+          ) : (
             <Text style={styles.buttonText}>Upload Post</Text>
-          </TouchableOpacity>
+          )}
+        </TouchableOpacity>
         </>
       ) : (
         <>
@@ -204,6 +248,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  buttonDisabled: {
+    backgroundColor: '#ccc', // Color for disabled state
+    // other styles for disabled button if needed
+  },
+  
 });
 
-export default MakePostScreen;
+export default MakePostScreen; 

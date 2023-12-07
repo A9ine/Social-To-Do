@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count }) => {
+const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count, location }) => {
   const likeIcon = liked ? require('../assets/liked_like_icon.jpg') : require('../assets/unliked_like_icon.png');
   const commentIcon = require('../assets/comment.png');
 
@@ -15,12 +15,25 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
     }
   };
 
+  const renderLocation = () => {
+    if (location) {
+      return (
+        <Text style={styles.location}>
+          {location}
+        </Text>
+      );
+    }
+    return null;
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <View style={styles.avatar}></View>
         <Text style={styles.username}>{text}</Text>
       </View>
+      {renderLocation()}
       <Image source={{ uri: pictureUrl }} style={styles.image} />
       <View style={styles.actionsContainer}>
         <TouchableOpacity onPress={onLikePress}>
@@ -114,6 +127,12 @@ const styles = StyleSheet.create({
   viewMoreText: {
     color: '#8E8E8E', // Instagram-like color for the "view more" text
     fontSize: 14,
+  },
+  location: {
+    color: '#8E8E8E', // Grey color for the location text
+    fontSize: 12,
+    marginLeft: 10, // Align with the username
+    marginBottom: 5, // Space before the image
   },
 });
 
