@@ -5,12 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddTaskScreen = ({ route, navigation }) => {
-  const [subject, setSubject] = useState('');
   const [task, setTask] = useState('');
   const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const isUpdate = !!route.params?.task;
 
   useEffect(() => {
     if (route.params?.task) {
@@ -95,11 +95,7 @@ const AddTaskScreen = ({ route, navigation }) => {
       setTask(text);
     }
   };
-  const onSubjectChange = (text) => {
-    if (text.split(/\s+/).length <= 50) { // Limit to 50 words
-      setSubject(text);
-    }
-  };
+
   const onCategoryChange = (text) => {
     if (text.split(/\s+/).length <= 10) { // Limit to 10
       setCategory(text);
@@ -162,7 +158,9 @@ const AddTaskScreen = ({ route, navigation }) => {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleAddTask}>
-          <Text style={styles.addTextButton}>Add Task</Text>
+          <Text style={styles.addTextButton}>
+              {isUpdate ? 'Save!' : 'Add Task'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
