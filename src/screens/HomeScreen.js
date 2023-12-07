@@ -234,7 +234,7 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity onPress={handleTask}>
           <Image
-            style={styles.navIcon}
+            style={styles.taskNavIcon}
             source={require('../assets/tasks.png')} // Tasks icon image
           />
         </TouchableOpacity>
@@ -289,18 +289,25 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   navIcon: {
-    width: 30, // Adjusted for optimal size
-    height: 30, // Adjusted for optimal size
+    width: 25, // Adjusted for optimal size
+    height: 25, // Adjusted for optimal size
     resizeMode: 'contain',
+  },
+  taskNavIcon: {
+    width: 50, 
+    height: 50, 
+    resizeMode: 'contain',
+    bottom: 30,
+    backgroundColor: '#FFFFFF'
   },
   bottomNavBar: {
     flexDirection: 'row', // Ensures horizontal layout
     justifyContent: 'space-around', // Evenly spaces the icons
     backgroundColor: '#FFFFFF',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 0,
+    paddingTop: 8,
     position: 'absolute',
-    bottom: 0,
+    bottom: -15,
     left: 0,
     right: 0,
     borderTopWidth: 1,

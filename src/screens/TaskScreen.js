@@ -107,7 +107,7 @@ const TaskScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
     {usernameParam ? (
-      <Text style={styles.helloText}>{usernameParam}'s tasks</Text>
+      <Text style={styles.helloText}>{usernameParam}'s Tasks</Text>
     ) : (
       firstName && <Text style={styles.helloText}>Hello {firstName}</Text>
     )}
