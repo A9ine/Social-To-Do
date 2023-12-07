@@ -19,7 +19,7 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <View style={styles.avatar}></View>
-        <Text style={styles.username}>{username}</Text>
+        <Text style={styles.username}>{text}</Text>
       </View>
       <Image source={{ uri: pictureUrl }} style={styles.image} />
       <View style={styles.actionsContainer}>
