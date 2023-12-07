@@ -1067,6 +1067,37 @@ def get_post_likes():
     return jsonify({"post_id": post_id, "likes_count": likes_count}), 200
 
 
+@app.route('/editTask', methods=['PUT'])
+def edit_task():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+    
+    # Extract the data needed to update the task
+    task_id = data.get('task_id')
+    new_description = data.get('new_description')
+    new_due_date = data.get('new_due_date')  # Assuming the due date can also be updated
+
+    # Check if the task exists
+    cursor.execute("SELECT * FROM tasks WHERE task_id = ?", (task_id,))
+    task = cursor.fetchone()
+    
+    if task:
+        # Update the task if it exists
+        cursor.execute("""
+            UPDATE tasks
+            SET task_description = ?,
+                due_date = ?
+            WHERE task_id = ?
+        """, (new_description, new_due_date, task_id))
+        
+        conn.commit()
+        return jsonify({"message": "Task updated successfully"}), 200
+    else:
+        # Task does not exist
+        return jsonify({"error": "Task not found"}), 404
+
+
 
 if __name__ == '__main__':
     app.run(port=2323)
