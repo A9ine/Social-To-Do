@@ -78,7 +78,7 @@ const TaskScreen = ({ navigation }) => {
       return (
         <View style={styles.emptyTasksContainer}>
           <Text style={[styles.emptyTasksText , {fontSize: 30}]}>🥺👉👈</Text>
-          <Text style={[styles.emptyTasksText, {fontWeight: 'bold'}]}>Nothing to do?</Text>
+          <Text style={[styles.emptyTasksText, {fontWeight: 'bold', color: '#6c5ce7'}]}>Nothing to do?</Text>
           <Text style={styles.emptyTasksText}>Check back after your first task!</Text>
         </View>
       );

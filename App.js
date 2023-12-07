@@ -28,7 +28,7 @@ export default function App() {
         <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ title: 'Reset Password' }} />
         <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ title: '', headerLeft:() => null }} />
         <Stack.Screen name="MakePostScreen" component={MakePostScreen} />
-        <Stack.Screen name="TaskScreen" component={TaskScreen} options={{ title: 'TASKS' }}/>
+        <Stack.Screen name="TaskScreen" component={TaskScreen} options={{ title: '' }}/>
         <Stack.Screen name="AddTaskScreen" component={AddTaskScreen} options={{ title: 'Add Task' }} />
         <Stack.Screen name="SettingScreen" component={SettingScreen} options={{ title: '' }} />
         <Stack.Screen name="AddFriendScreen" component={AddFriendScreen} />
