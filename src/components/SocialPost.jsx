@@ -5,11 +5,21 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
   const likeIcon = liked ? require('../assets/liked_like_icon.jpg') : require('../assets/unliked_like_icon.png');
   const commentIcon = require('../assets/comment.png');
 
+  const renderViewMoreComments = () => {
+    if (comments.length > 3) {
+      return (
+        <TouchableOpacity onPress={onCommentPress} style={styles.viewMoreComments}>
+          <Text style={styles.viewMoreText}>View more comments...</Text>
+        </TouchableOpacity>
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <View style={styles.avatar}></View>
-        <Text style={styles.username}>{text}</Text> 
+        <Text style={styles.username}>{username}</Text>
       </View>
       <Image source={{ uri: pictureUrl }} style={styles.image} />
       <View style={styles.actionsContainer}>
@@ -20,18 +30,20 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
           <Image source={commentIcon} style={styles.actionIcon} />
         </TouchableOpacity>
         <Text style={styles.likes}>
-            {like_count === 1 ? '1 like' : `${like_count} likes`}
+          {like_count === 1 ? '1 like' : `${like_count} likes`}
         </Text>
       </View>
-      {comments.map((comment, index) => (
+      {renderViewMoreComments()}
+      {comments.slice(0, 3).map((comment, index) => (
         <View key={index} style={styles.commentContainer}>
-          <Text style={styles.commentUsername}>{comment.username}</Text>
+          <Text style={styles.commentUsername}>{comment.username}:</Text>
           <Text style={styles.commentText}>{comment.comment}</Text>
         </View>
       ))}
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   // ... other styles remain unchanged
@@ -94,6 +106,14 @@ const styles = StyleSheet.create({
   },
   commentUsername: {
     fontWeight: 'bold',
+  },
+  viewMoreComments: {
+    padding: 10,
+    alignItems: 'flex-start',
+  },
+  viewMoreText: {
+    color: '#8E8E8E', // Instagram-like color for the "view more" text
+    fontSize: 14,
   },
 });
 

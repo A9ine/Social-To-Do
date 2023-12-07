@@ -74,17 +74,8 @@ const TaskScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-    {/* Conditional rendering based on usernameParam */}
-    {usernameParam ? (
-      <Text style={styles.helloText}>{usernameParam}'s tasks include:</Text>
-    ) : (
-      <>
-        {firstName && <Text style={styles.helloText}>Hello, {firstName}</Text>}
-        <Text style={styles.dateText}>{formatDate()}</Text>
-      </>
-    )}
-  
-      {/* Search and task list UI */}
+      {firstName && <Text style={styles.helloText}>Hello {firstName}</Text>}
+      <Text style={styles.dateText}>{formatDate()}</Text>
       <View style={styles.modal}>
         <TextInput
           style={styles.searchInput}
@@ -99,18 +90,15 @@ const TaskScreen = ({ navigation }) => {
         renderItem={renderTask}
         keyExtractor={(item) => item.task_id.toString()}
       />
-      
-      {/* Only show the Add New Task button if usernameParam is not provided */}
-      {!usernameParam && (
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddTaskScreen')}>
-            <Text style={styles.addTextButton}>Add New Task</Text>
-          </TouchableOpacity>
-        </View>
+      {!usernameParam && ( // Only show the Add New Task button if a username was not passed in
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddTaskScreen')}>
+          <Text style={styles.addTextButton}>Add New Task</Text>
+        </TouchableOpacity>
+      </View>
       )}
     </View>
   );
-  
 };
 
 const styles = StyleSheet.create({
