@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: 80, 
-    height: 80,
+    height: 75,
     marginLeft: -25
   },
   deleteButtonIcon: {
