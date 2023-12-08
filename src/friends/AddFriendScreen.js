@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 8,
     fontSize: 16,
-    color: '#5e35b1', // Darker purple for text
   },
   userItemContainer: {
     padding: 15,

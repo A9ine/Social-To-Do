@@ -161,7 +161,7 @@ const TaskScreen = ({ navigation }) => {
       firstName && <Text style={styles.helloText}>Hello {firstName}</Text>
     )}
       <Text style={styles.dateText}>{formatDate()}</Text>
-      <View style={styles.modal}>
+      <View style={[styles.modal, {borderWidth: 1, borderColor: '#7a42f4', backgroundColor: '#f3e9ff'}]}>
         <TextInput
           style={styles.searchInput}
           placeholder="Search tasks..."
