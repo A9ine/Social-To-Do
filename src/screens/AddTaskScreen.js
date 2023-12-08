@@ -132,7 +132,7 @@ const AddTaskScreen = ({ route, navigation }) => {
       <View style={[styles.modal, {height: 150}]}> 
         <Text style={styles.title}>Task</Text>
         <TextInput
-          style={[styles.input, { fontSize: 14, paddingTop: 8, paddingBottom: 8 }]} 
+          style={[styles.input, { paddingTop: 8, paddingBottom: 8 }]} 
           value={task}
           onChangeText={onTaskChange}
           multiline 
@@ -173,7 +173,7 @@ const AddTaskScreen = ({ route, navigation }) => {
         ) }
         </TouchableOpacity>
       </View>
-      <View style={[styles.modal, { height: 75, marginTop: 20 }]}>
+      <View style={[styles.modal, { height: 50, marginTop: 20 }]}>
         <Text style={styles.title}>Category</Text>
         <SelectDropdown
           data={catagories}
@@ -186,10 +186,10 @@ const AddTaskScreen = ({ route, navigation }) => {
           rowTextForSelection={(item, index) => {
             return item.category_name; 
           }}
-          buttonStyle={styles.dropdownButton}
-          buttonTextStyle={styles.dropdownButtonText}
+          buttonStyle={styles.options}
+          buttonTextStyle={styles.title}
           defaultValueByIndex={0} 
-          defaultButtonText={'Select Category'} 
+          defaultButtonText='Options'
         />
       </View>
       <View style={styles.buttonContainer}>
@@ -262,19 +262,14 @@ const styles = StyleSheet.create({
     elevation: 5,
     padding: 15,
   },
-  dropdownButton: {
-    width: '100%', // Match the width of the modal or parent container
-    backgroundColor: 'white', // White background or any other color
-    borderRadius: 8, // Rounded corners for the dropdown
-    borderWidth: 1, // Border width for the dropdown
-    borderColor: '#8A2BE2', // Border color
-    padding: 10, // Padding for the dropdown button
-  },
-  dropdownButtonText: {
-    textAlign: 'center', // Center the text
-    color: '#8A2BE2', // Text color for the dropdown button
-    fontWeight: 'bold', // Bold text
-  },
+  options: {
+    backgroundColor: 'white', 
+    bottom: 24, 
+    left: 190, 
+    borderRadius: 20,
+    width: 130,
+    height: 30
+  }
   
 });
 
