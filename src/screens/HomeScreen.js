@@ -286,7 +286,6 @@ const styles = StyleSheet.create({
     height: 50, 
     resizeMode: 'contain',
     bottom: 30,
-    backgroundColor: '#FFFFFF'
   },
   bottomNavBar: {
     flexDirection: 'row', // Ensures horizontal layout
