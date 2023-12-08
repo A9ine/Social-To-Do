@@ -131,32 +131,10 @@ const FriendsScreen = ({ navigation }) => {
     }
   };
 
-  const fetchNumPosts = async () => { //fetch number of posts
-
-    try {
-      const username = await AsyncStorage.getItem('username');
-      if (username) {
-        const response = await axios.get('http://127.0.0.1:2323/getNumberOfPosts', {
-          params: { username }
-        });
-  
-        if (response.status === 200) {
-          setNumPosts(response.data.numPosts);
-        } else {
-          Alert.alert('Error', 'Failed to fetch the number of posts');
-        }
-      }
-    } catch (error) {
-      console.error('Fetch number of posts error:', error);
-      Alert.alert('Error', 'Failed to fetch the number of posts due to a network error');
-    }
-  };
-  
-
   useFocusEffect( //dummy. will be used after we fetch the number of posts in the future
     useCallback(() => {
       fetchFriends();
-      fetchNumPosts(); // Fetch the number of posts
+      //fetchNumPosts(); // Fetch the number of posts
       return () => {
         setFriends([]);
         setNumPosts(0);
@@ -167,7 +145,7 @@ const FriendsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.profileStats}>
-        <Text style={styles.statItem}>Tasks Done: {numPosts}</Text>
+        
         <Text style={styles.statItem}>Friends: {friends.length}</Text>
         <TouchableOpacity onPress={navigateToSettings}>
           <Image
