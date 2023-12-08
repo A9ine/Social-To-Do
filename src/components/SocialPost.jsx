@@ -10,7 +10,7 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
     if (comments.length > 3) {
       return (
         <TouchableOpacity onPress={onCommentPress} style={styles.viewMoreComments}>
-          <Text style={styles.viewMoreText}>View more comments...</Text>
+          <Text style={styles.viewMoreText}>View all comments</Text>
         </TouchableOpacity>
       );
     }
@@ -62,16 +62,7 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
 
 
 const styles = StyleSheet.create({
-  // ... other styles remain unchanged
-  commentContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    alignItems: 'center',
-  },
-  commentText: {
-    fontSize: 14,
-    marginLeft: 5, // Add margin if needed
-  },
+
   container: {
     backgroundColor: 'white',
     borderRadius: 15,
@@ -111,7 +102,8 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: 'row',
-    padding: 10,
+    marginTop: 10,
+    paddingLeft: 10,
     alignItems: 'center',
   },
   actionIcon: {
@@ -131,19 +123,27 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
 
-  comment: {
-    fontSize: 14,
-    marginVertical: 2,
-  },
   commentUsername: {
     fontWeight: 'bold',
   },
+
+  commentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 15,
+    paddingVertical: 2,
+  },
+  commentText: {
+    fontSize: 14,
+    marginLeft: 5, // Add margin if needed
+  },
   viewMoreComments: {
-    padding: 10,
+    marginTop: 10,
+    paddingLeft: 15,
     alignItems: 'flex-start',
   },
   viewMoreText: {
-    color: '#8E8E8E', // Instagram-like color for the "view more" text
+    color: '#8E8E8E', 
     fontSize: 14,
   },
 });

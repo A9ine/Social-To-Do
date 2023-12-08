@@ -37,7 +37,7 @@ export default function App() {
         <Stack.Screen name="ChatListScreen" component={ChatListScreen} />
         <Stack.Screen name="StartChatScreen" component={StartChatScreen}/>
         <Stack.Screen name="ChatScreen" component={ChatScreen}/>
-        <Stack.Screen name='CommentScreen' component={CommentScreen} />
+        <Stack.Screen name='CommentScreen' component={CommentScreen} options={{ title: 'Comments' }}  />
       </Stack.Navigator>
     </NavigationContainer>
   );

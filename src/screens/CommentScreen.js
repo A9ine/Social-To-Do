@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Alert, View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+import {Alert, View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -11,7 +11,7 @@ const CommentScreen = ({ route, navigation }) => {
 
   const handleSendComment = async () => {
     if (!newComment.trim()) {
-      Alert.alert('Error', 'Comment cannot be empty');
+      Alert.alert("Empty comment?", 'How about say "Good Job"?');
       return;
     }
   
@@ -48,8 +48,11 @@ const CommentScreen = ({ route, navigation }) => {
 
   const renderComment = ({ item }) => (
     <View style={styles.commentItem}>
-      <Text style={styles.commentUsername}>{item.username}:</Text>
-      <Text style={styles.commentText}>{item.comment}</Text>
+      <View style={styles.avatar}></View>
+      <View>
+        <Text style={styles.commentUsername}>{item.username}</Text>
+        <Text style={styles.commentText}>{item.comment}</Text>
+    </View>
     </View>
   );
 
@@ -68,7 +71,10 @@ const CommentScreen = ({ route, navigation }) => {
           onChangeText={setNewComment}
           placeholder="Write a comment..."
         />
-        <Button title="Send" onPress={handleSendComment} />
+        <TouchableOpacity style={styles.button} onPress={handleSendComment}>
+          <Text style={styles.buttonText}>Send</Text>
+        </TouchableOpacity>
+
       </View>
     </View>
   );
@@ -77,6 +83,15 @@ const CommentScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F9EFFF'
+
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#C4C4C4',
+    marginRight: 10,
   },
   commentsList: {
     flex: 1,
@@ -89,15 +104,18 @@ const styles = StyleSheet.create({
   },
   commentUsername: {
     fontWeight: 'bold',
+    fontSize: 15,
+    marginLeft: 5,
   },
   commentText: {
     marginLeft: 5,
+    fontSize: 15,
   },
   inputContainer: {
     flexDirection: 'row',
     padding: 10,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#8A2BE2',
   },
   input: {
     flex: 1,
@@ -106,6 +124,16 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 10,
     borderRadius: 4,
+  },
+  button: {
+    backgroundColor: '#8A2BE2',
+    padding: 10,
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
   },
 });
 
