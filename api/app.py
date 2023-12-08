@@ -505,7 +505,8 @@ def matchTasks():
                         f"Your task": {
                             "task_id": user_task[0],
                             "description": user_task[3],
-                            "category": user_task[2]
+                            "category": user_task[2],
+                            "due date": user_task[6]
                         }
                     })
                     if match_tasks.count(user_task_reformat) < 1:
@@ -514,7 +515,8 @@ def matchTasks():
                         f"{friend_username}'s task": {
                             "task_id": friend_task[0],
                             "description": friend_task[3],
-                            "category": friend_task[2]
+                            "category": friend_task[2],
+                            "due date": friend_task[6]
                         }
                     })
     return jsonify(match_tasks)
@@ -593,7 +595,7 @@ def getIncompletedTasks():
     tasks_list = [
         {
             'task_id' : task[0],
-            # 'task_category' : task[2],
+            'task_category' : task[2],
             'task_description' : task[3],
             'due_date' : task[6],
             'completed': task[7],
