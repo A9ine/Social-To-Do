@@ -1209,7 +1209,9 @@ def edit_task():
     # Extract the data needed to update the task
     task_id = data.get('task_id')
     new_description = data.get('new_description')
-    new_due_date = data.get('new_due_date')  # Assuming the due date can also be updated
+    new_due_date = data.get('new_due_date') 
+    new_task_category = data.get('new_task_category') 
+
 
     print(task_id)
 
@@ -1222,9 +1224,10 @@ def edit_task():
         cursor.execute("""
             UPDATE tasks
             SET task = ?,
-                due_date = ?
+                due_date = ?,
+                task_category = ?
             WHERE task_id = ?
-        """, (new_description, new_due_date, task_id))
+        """, (new_description, new_due_date, task_id, new_task_category))
         
         conn.commit()
         return jsonify({"message": "Task updated successfully"}), 200
