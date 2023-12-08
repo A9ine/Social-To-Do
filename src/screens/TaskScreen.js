@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, Alert, TextInput, Image, TouchableOpa
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { Swipeable } from 'react-native-gesture-handler';
 
 const TaskScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
@@ -18,7 +19,6 @@ const TaskScreen = ({ navigation }) => {
     task.task_description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const [dueDate, setDueDate] = useState(new Date());
   const [tasksUpdated, setTasksUpdated] = useState(false);
 
   const formatDateAndTime = (date) => {
@@ -50,6 +50,26 @@ const TaskScreen = ({ navigation }) => {
     }
   };
 
+  const deleteTask = async (taskId) => {
+    try {
+      const response = await axios.post('http://127.0.0.1:2323/deleteTask', {
+        task_id: taskId,
+      });
+  
+      if (response.status === 200) {
+        // Remove the task from the tasks state
+        const updatedTasks = tasks.filter(task => task.task_id !== taskId);
+        setTasks(updatedTasks);
+        Alert.alert('Success', 'Task deleted successfully');
+      } else {
+        Alert.alert('Error', 'Failed to delete task');
+      }
+    } catch (error) {
+      console.error('Delete task error:', error);
+      Alert.alert('Error', 'Failed to delete task due to a network error');
+    }
+  };
+    
   useFocusEffect(
     React.useCallback(() => {
       fetchData();
@@ -62,8 +82,21 @@ const TaskScreen = ({ navigation }) => {
       setTasksUpdated(false);
     }
   }, [tasksUpdated]);
-
   const renderTask = ({ item }) => (
+    <Swipeable
+      renderRightActions={() => (
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => deleteTask(item.task_id)}
+        >
+        <Image
+          style={styles.deleteButtonIcon}
+          source={require('../assets/sad.png')} 
+        />
+        <Text style={styles.deleteText} >Delete</Text>
+        </TouchableOpacity>
+      )}
+    >
     <TouchableOpacity 
       onPress={() => {
         // Only navigate to AddTaskScreen if usernameParam is not set
@@ -83,7 +116,10 @@ const TaskScreen = ({ navigation }) => {
         </View>
       </View>
     </TouchableOpacity>
+    </Swipeable>
   );
+  
+
   const renderContent = () => {
     if (filteredTasks.length === 0) {
       if (usernameParam) {
@@ -185,6 +221,10 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: '#6c5ce7', // Darker purple for task text for readability
   },
+    taskInfo: {
+    flexDirection: 'row',
+    alignItems: 'center', 
+  },
   button: {
     backgroundColor: '#6c5ce7', // Dark purple for the button
     color: '#ffffff', // White text for contrast on button
@@ -218,10 +258,7 @@ const styles = StyleSheet.create({
     marginRight: 5, 
 
   },
-  taskInfo: {
-    flexDirection: 'row',
-    alignItems: 'center', 
-  },
+
   buttonContainer: {
     position: 'absolute',  
     bottom: 0,         
@@ -245,6 +282,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20
   },
+  deleteButton: {
+    backgroundColor: '#ff2f2f',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80, 
+    height: 80,
+    marginLeft: -25
+  },
+  deleteButtonIcon: {
+    width: 30, 
+    height: 30,
+  },
+  
+  deleteText:{
+    color:'#ffffff',
+    fontSize:15,
+    fontWeight: 'bold',
+    marginTop: 4,
+  }
 });
 
 export default TaskScreen;
