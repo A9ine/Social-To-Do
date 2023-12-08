@@ -255,16 +255,6 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
   
-      {/* Notifications and Chat Buttons */}
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity
-          style={pendingFriends && pendingFriends.length > 0 ? styles.notificationButtonActive : styles.notificationButton}
-          onPress={navigateToNotifications}
-        >
-          <Text style={styles.buttonText}>Notifications</Text>
-        </TouchableOpacity>
-      </View>
-  
     </View>
   );  
 };
@@ -352,15 +342,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  notificationButton: {
-    position: 'absolute',
-    top: -750, // Adjust this value as needed to position the button
-    right: 20,
-    backgroundColor: '#8A2BE2',
-    padding: 10,
-    borderRadius: 5,
-    minWidth: 80,
-  },
+
   chatButton: {
     position: 'absolute',
     top: -750, // Adjust this value as needed to position the button
@@ -368,15 +350,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#8A2BE2',
     padding: 10,
     borderRadius: 5,
-  },
-  notificationButtonActive: {
-    position: 'absolute',
-    top: -750, // Adjust this value as needed to position the button
-    right: 20,
-    backgroundColor: 'red', // Different color to indicate active notifications
-    padding: 10,
-    borderRadius: 5,
-    minWidth: 80,
   },
   buttonText: {
     color: 'white',
