@@ -131,10 +131,27 @@ const FriendsScreen = ({ navigation }) => {
     }
   };
 
-  const fetchNumPosts = async () => {
-    // Fetch the number of posts logic dummy for the future
-    // setNumPosts(responseData);
+  const fetchNumPosts = async () => { //fetch number of posts
+
+    try {
+      const username = await AsyncStorage.getItem('username');
+      if (username) {
+        const response = await axios.get('http://127.0.0.1:2323/getNumberOfPosts', {
+          params: { username }
+        });
+  
+        if (response.status === 200) {
+          setNumPosts(response.data.numPosts);
+        } else {
+          Alert.alert('Error', 'Failed to fetch the number of posts');
+        }
+      }
+    } catch (error) {
+      console.error('Fetch number of posts error:', error);
+      Alert.alert('Error', 'Failed to fetch the number of posts due to a network error');
+    }
   };
+  
 
   useFocusEffect( //dummy. will be used after we fetch the number of posts in the future
     useCallback(() => {
@@ -155,7 +172,7 @@ const FriendsScreen = ({ navigation }) => {
         <TouchableOpacity onPress={navigateToSettings}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/settings.png')} // Replace with your settings icon image
+            source={require('../assets/settings.png')}
           />
         </TouchableOpacity>
       </View>
@@ -165,10 +182,12 @@ const FriendsScreen = ({ navigation }) => {
         keyExtractor={(item) => item.friend_id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.friendItem} onPress={() => handleFriendOptions(item.friend_username)}>
-            <Text>{item.friend_username}</Text>
+            <View style={styles.avatar}></View>
+            <Text style={styles.friendText}>{item.friend_username}</Text>
           </TouchableOpacity>
         )}
       />
+
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('AddFriendScreen')}
@@ -181,31 +200,31 @@ const FriendsScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/home.png')} // Replace with your home icon image
+            source={require('../assets/home.png')} 
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleMakePost}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/createPost.png')} // Create post icon image
+            source={require('../assets/createPost.png')} 
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleTask}>
           <Image
             style={styles.taskNavIcon}
-            source={require('../assets/tasks.png')} // Tasks icon image
+            source={require('../assets/tasks.png')}
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleFriends}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/friends.png')} // Friends icon image
+            source={require('../assets/friends.png')}
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSignOut}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/signOut.png')} // Sign out icon image
+            source={require('../assets/signOut.png')}
           />
         </TouchableOpacity>
       </View>
@@ -227,6 +246,27 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
+  },
+
+  friendItem: {
+    backgroundColor: "#EDE7F6", // Light purple background
+    marginHorizontal: 10,
+    marginBottom: 10,
+    borderRadius: 10, // Rounded corners
+    shadowColor: "#9575CD", // Deeper purple for shadow
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 5, // Slight elevation for a subtle shadow effect
+    flexDirection: 'row', // Align items in a row
+    alignItems: 'center', // Center items vertically
+    minHeight: 60, // Increase height for prominence
+  },
+  friendText: {
+    fontSize: 20, // Larger font size
+    fontWeight: 'bold', // Bold for emphasis
+    color: '#673AB7', // Darker purple for contrast
+    flex: 1, // Take up available space
+    marginLeft: 15, // Margin to space out text from the edge
   },
 
   navIcon: {

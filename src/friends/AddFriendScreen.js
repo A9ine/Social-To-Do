@@ -80,6 +80,7 @@ const AddFriendScreen = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Search users"
+        placeholderTextColor="#888" // Added placeholder text color
         value={searchText}
         onChangeText={setSearchText}
       />
@@ -87,7 +88,7 @@ const AddFriendScreen = ({ navigation }) => {
         data={searchResults}
         keyExtractor={(item) => item.user_id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => confirmAddFriend(item.username)}>
+          <TouchableOpacity style={styles.userItemContainer} onPress={() => confirmAddFriend(item.username)}>
             <Text style={styles.userItem}>{item.username}</Text>
           </TouchableOpacity>
         )}
@@ -99,20 +100,31 @@ const AddFriendScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20,
+    backgroundColor: '#f3e9ff', // Very light purple
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
+    borderColor: '#7a42f4', // Bold purple for border
+    padding: 15,
+    marginBottom: 20,
+    borderRadius: 8,
+    fontSize: 16,
+    color: '#5e35b1', // Darker purple for text
+  },
+  userItemContainer: {
+    padding: 15,
     marginBottom: 10,
-    borderRadius: 5,
+    backgroundColor: '#eaddff', // Light purple background
+    borderRadius: 8,
+    shadowColor: '#7a42f4', // Purple shadow for depth
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
   userItem: {
-    padding: 10,
-    fontSize: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    fontSize: 20,
+    color: '#5e35b1', // Dark purple for item text
   },
 });
 
