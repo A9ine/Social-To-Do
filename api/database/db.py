@@ -45,12 +45,21 @@ create_tasks_table = """
     CREATE TABLE IF NOT EXISTS tasks (
         task_id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
+        task_category TEXT NOT NULL,
         task TEXT NOT NULL,
         created_at DATETIME NOT NULL,
         updated_at DATETIME NOT NULL,
         due_date DATETIME NOT NULL,
         completed BOOLEAN NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+"""
+
+# Task Category Table
+create_task_category_table = """
+     CREATE TABLE IF NOT EXISTS task_categories (
+        category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category_name TEXT NOT NULL UNIQUE
     );
 """
 
@@ -130,6 +139,14 @@ cursor.execute(create_users_table)
 cursor.execute(create_verification_codes_table)
 cursor.execute(create_friends_table)
 cursor.execute(create_tasks_table)
+cursor.execute(create_task_category_table)
+# Inserting categories into table
+initial_categories = ["Work", "Home", "Personal Development", "Gym", 
+"Family", "Social", "Errands", "School", "Leisure", "Activities", "Sports", "Travel", "Appointments",
+"Projects", "Cooking", "Lunch", "Dinner"]
+for category in initial_categories:
+    cursor.execute("INSERT INTO task_categories (category_name) VALUES (?)", (category,))
+
 cursor.execute(create_groups_table)
 cursor.execute(create_group_members_table)
 cursor.execute(create_chat_messages_table)
