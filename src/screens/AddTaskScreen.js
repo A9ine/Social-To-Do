@@ -3,6 +3,7 @@ import { View, Text, Button, TextInput, StyleSheet, Alert, TouchableOpacity } fr
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import SelectDropdown from 'react-native-select-dropdown'
 
 const AddTaskScreen = ({ route, navigation }) => {
   const [task, setTask] = useState('');
@@ -11,6 +12,26 @@ const AddTaskScreen = ({ route, navigation }) => {
   const [mode, setMode] = useState('date');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const isUpdate = !!route.params?.task;
+  const[catagories, setCatagories] = useState([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+  
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:2323/getTaskCategories');
+      if (response.status === 200) {
+        setCatagories(response.data);
+      } else {
+        Alert.alert('Error', 'Failed to fetch categories');
+      }
+    } catch (error) {
+      console.error('Fetch categories error:', error);
+      Alert.alert('Error', 'Failed to fetch categories due to a network error');
+    }
+  };
+  
 
   useEffect(() => {
     if (route.params?.task) {
@@ -57,6 +78,7 @@ const AddTaskScreen = ({ route, navigation }) => {
           username: username.toLowerCase(),
           task: task,
           due_date: dueDateString,
+          task_category: category
         };
         response = await axios.post('http://127.0.0.1:2323/addTask', newData);
       }
@@ -151,12 +173,23 @@ const AddTaskScreen = ({ route, navigation }) => {
         ) }
         </TouchableOpacity>
       </View>
-      <View style={[styles.modal, {height: 75, marginTop: 20}]}> 
-        <Text style={styles.title}>Add category</Text>
-        <TextInput
-          style= {styles.input}
-          value={category}
-          onChangeText={onCategoryChange}
+      <View style={[styles.modal, { height: 75, marginTop: 20 }]}>
+        <Text style={styles.title}>Category</Text>
+        <SelectDropdown
+          data={catagories}
+          onSelect={(selectedItem, index) => {
+            setCategory(selectedItem.category_id);
+          }}
+          buttonTextAfterSelection={(selectedItem, index) => {
+            return selectedItem.category_name; 
+          }}
+          rowTextForSelection={(item, index) => {
+            return item.category_name; 
+          }}
+          buttonStyle={styles.dropdownButton}
+          buttonTextStyle={styles.dropdownButtonText}
+          defaultValueByIndex={0} 
+          defaultButtonText={'Select Category'} 
         />
       </View>
       <View style={styles.buttonContainer}>
@@ -228,7 +261,21 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     padding: 15,
-  }
+  },
+  dropdownButton: {
+    width: '100%', // Match the width of the modal or parent container
+    backgroundColor: 'white', // White background or any other color
+    borderRadius: 8, // Rounded corners for the dropdown
+    borderWidth: 1, // Border width for the dropdown
+    borderColor: '#8A2BE2', // Border color
+    padding: 10, // Padding for the dropdown button
+  },
+  dropdownButtonText: {
+    textAlign: 'center', // Center the text
+    color: '#8A2BE2', // Text color for the dropdown button
+    fontWeight: 'bold', // Bold text
+  },
+  
 });
 
 export default AddTaskScreen;
