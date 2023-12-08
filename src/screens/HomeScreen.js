@@ -180,29 +180,29 @@ const HomeScreen = ({ navigation }) => {
       );
     }
   };
-  
-  
 
   return (
     <View style={styles.container}>
-  
       {/* Top Navigation Bar */}
       <View style={styles.topNavBar}>
         <TouchableOpacity onPress={navigateToNotifications}>
+          {/* Conditional rendering for notification sign */}
+          {pendingFriends.length > 0 && (
+            <View style={styles.notificationSign}></View>
+          )}
           <Image
             style={styles.navIcon}
-            source={require('../assets/notification.png')} // Replace with your settings icon image
+            source={require('../assets/notification.png')}
           />
         </TouchableOpacity>
         <Text style={styles.navTitle}>Home</Text>
         <TouchableOpacity onPress={navigateToChat}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/chat.png')} // Replace with your chat icon image
+            source={require('../assets/chat.png')} 
           />
         </TouchableOpacity>
       </View>
-  
       {/* Posts Container */}
       <ScrollView style={styles.postsContainer}>
         {posts.map((post, index) => (
@@ -226,31 +226,31 @@ const HomeScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/home.png')} // Replace with your home icon image
+            source={require('../assets/home.png')} 
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleMakePost}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/createPost.png')} // Create post icon image
+            source={require('../assets/createPost.png')} 
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleTask}>
           <Image
             style={styles.taskNavIcon}
-            source={require('../assets/tasks.png')} // Tasks icon image
+            source={require('../assets/tasks.png')}
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleFriends}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/friends.png')} // Friends icon image
+            source={require('../assets/friends.png')} 
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSignOut}>
           <Image
             style={styles.navIcon}
-            source={require('../assets/signOut.png')} // Sign out icon image
+            source={require('../assets/signOut.png')}
           />
         </TouchableOpacity>
       </View>
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
 
   chatButton: {
     position: 'absolute',
-    top: -750, // Adjust this value as needed to position the button
+    top: -750,
     right: 140,
     backgroundColor: '#8A2BE2',
     padding: 10,
@@ -353,6 +353,15 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  notificationSign: {
+    width: 10,
+    height: 10,
+    borderRadius: 25,
+    backgroundColor: '#ff2f2f',
+    top: 9,
+    left: 13,
+    zIndex: 1,
   },
 });
 
