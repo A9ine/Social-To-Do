@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 10,
     paddingLeft: 10,
+    paddingBottom:10,
     alignItems: 'center',
   },
   actionIcon: {
