@@ -83,7 +83,7 @@ const FriendsScreen = ({ navigation }) => {
     try {
         navigation.navigate('TaskScreen');
     } catch (e) {
-        Alert.alert('Error', 'Failed tonavigate to task screen.');
+        Alert.alert('Error', 'Failed to navigate to task screen.');
         console.error('Error navigating to make post screen:', e);
       }
   };
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     height: 50, 
     resizeMode: 'contain',
     bottom: 30,
-    backgroundColor: '#FFFFFF'
+    //backgroundColor: '#FFFFFF'
   },
   bottomNavBar: {
     flexDirection: 'row', // Ensures horizontal layout
