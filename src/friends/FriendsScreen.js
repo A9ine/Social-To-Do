@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 10, // Rounded corners
     shadowColor: "#9575CD", // Deeper purple for shadow
-    shadowOpacity: 0.4,
+    shadowOpacity: 0,
     shadowRadius: 6,
     elevation: 5, // Slight elevation for a subtle shadow effect
     flexDirection: 'row', // Align items in a row
