@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count, location }) => {
-  const likeIcon = liked ? require('../assets/liked_like_icon.jpg') : require('../assets/unliked_like_icon.png');
+  const likeIcon = liked ? require('../assets/liked_like_icon.png') : require('../assets/unliked_like_icon.png');
   const likeIconStyle = liked ? styles.likedIcon : styles.actionIcon;
   const commentIcon = require('../assets/comment.png');
 
@@ -45,9 +45,11 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
         <TouchableOpacity onPress={onCommentPress}>
           <Image source={commentIcon} style={styles.actionIcon} />
         </TouchableOpacity>
+        <View style= {{left:5}}>
         <Text style={styles.likes}>
           {like_count === 1 ? '1 like' : `${like_count} likes`}
         </Text>
+        </View>
       </View>
       {renderViewMoreComments()}
       {comments.slice(0, 3).map((comment, index) => (
@@ -110,14 +112,15 @@ const styles = StyleSheet.create({
   actionIcon: {
     width: 25,
     height: 25,
-    marginHorizontal: 4,
+    marginHorizontal: 5,
   },
 
   likedIcon: {
-    width: 28,
-    height: 28,
-    marginHorizontal: 4
+    width: 25,
+    height: 25,
+    marginHorizontal: 5,
   },
+
 
   likes: {
     fontWeight: 'bold',
