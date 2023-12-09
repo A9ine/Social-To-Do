@@ -1,13 +1,107 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storage } from '../core/firebase'; // Import your Firebase storage
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
+
 
 const SettingScreen = () => {
   const [newEmail, setNewEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [profilePicUri, setProfilePicUri] = useState('');
+  
+  const fetchProfilePicture = async () => {
+    try {
+      const username = await AsyncStorage.getItem('username');
+      if (username) {
+        const response = await axios.get(`http://127.0.0.1:2323/getProfilePicture?username=${username}`);
+        if (response.status === 200 && response.data) {
+          setProfilePicUri(response.data); // Set the profile picture URI
+        }
+      }
+    } catch (error) {
+      console.error('Fetch profile picture error:', error);
+      Alert.alert('Error', 'Failed to fetch profile picture');
+    }
+};
+
+
+  useEffect(() => {
+    fetchProfilePicture();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfilePicture();
+    }, [])
+  );
+
+  const handleUpdateProfilePicture = async () => {
+    // Request media library permissions
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Error', 'Permission to access gallery is required!');
+      return;
+    }
+  
+    // Launch the image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.1,
+    });
+  
+    // Continue only if the user did not cancel the picker
+    if (!result.cancelled) {
+      setProfilePicUri(result.assets[0].uri); // Update the state
+      uploadProfilePicture(result.assets[0].uri); // Call upload function with the URI
+    }
+  };
+  
+  // Function to upload the profile picture to Firebase and update the database
+  const uploadProfilePicture = async (uri) => {
+    try {
+      if (!uri) {
+        Alert.alert('No Image', 'Please select an image first!');
+        return;
+      }
+  
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const uuid = generateUUID();
+      const imageRef = ref(storage, `images/${uuid}.jpg`);
+  
+      // Upload image to Firebase Storage
+      await uploadBytes(imageRef, blob);
+  
+      // Get the download URL
+      const downloadURL = await getDownloadURL(imageRef);
+  
+      // Update the profile picture in the database
+      const username = await AsyncStorage.getItem('username');
+      const updateResponse = await axios.put('http://127.0.0.1:2323/updateProfilePic', {
+        username: username,
+        profile_pic_url: downloadURL,
+      });
+  
+      if (updateResponse.status === 200) {
+        await AsyncStorage.setItem('profilePic', downloadURL);
+        Alert.alert('Success', 'Profile picture updated successfully');
+      } else {
+        Alert.alert('Error', 'Failed to update profile picture');
+      }
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      Alert.alert('Error', 'Upload failed');
+    }
+  };
+  
 
   const handleSendVerification = async () => {
     if (!newEmail) {
@@ -27,6 +121,16 @@ const SettingScreen = () => {
       console.error('Verification error:', error);
       Alert.alert('Error', 'Failed to send verification code');
     }
+  };
+
+  const generateUUID = () => {
+    let d = new Date().getTime();
+    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = (d + Math.random() * 16) % 16 | 0;
+      d = Math.floor(d / 16);
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
   };
 
   const handleUpdateEmail = async () => {
@@ -71,6 +175,17 @@ const SettingScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.profilePicContainer}>
+        {profilePicUri ? (
+          <Image source={{ uri: profilePicUri }} style={styles.profilePic} />
+        ) : (
+          <View style={styles.profilePicPlaceholder}>
+          </View>
+        )}
+        <TouchableOpacity onPress={handleUpdateProfilePicture}>
+          <Text style={styles.changeProfilePicText}>Change Profile Picture</Text>
+        </TouchableOpacity>
+      </View>
       <Text style={styles.sectionTitle}>Change Email</Text>
       <TextInput 
         style={styles.input} 
@@ -146,6 +261,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'flex-start',
     marginBottom: 10,
+  },
+  profilePicContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  profilePic: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  profilePicPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  changeProfilePicText: {
+    color: '#8A2BE2',
+    marginTop: 10,
+    textDecorationLine: 'underline',
   },
 });
 

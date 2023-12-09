@@ -13,7 +13,8 @@ create_users_table = """
         email TEXT NOT NULL,
         username TEXT NOT NULL,
         password TEXT NOT NULL,
-        timestamp TEXT NOT NULL
+        timestamp TEXT NOT NULL,
+        profile_pic TEXT,
     );
 """
 

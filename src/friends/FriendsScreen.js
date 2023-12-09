@@ -162,18 +162,28 @@ const FriendsScreen = ({ navigation }) => {
       </View>
       
       <FlatList
-      
         data={friends}
         keyExtractor={(item) => item.friend_id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.userItemContainer} onPress={() => handleFriendOptions(item.friend_username)}>
+          <TouchableOpacity 
+          style={styles.userItemContainer} 
+          onPress={() => handleFriendOptions(item.friend_username)}
+        >
+          {item.friend_profile_pic ? (
+            <Image
+              source={{ uri: item.friend_profile_pic }}
+              style={styles.profilePic} // You need to define this style
+            />
+          ) : (
             <View style={styles.avatar}></View>
-            <Text style={styles.friendText}>{item.friend_username}</Text>
-          </TouchableOpacity>
-        )}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-      />
+          )}
+          <Text style={styles.friendText}>{item.friend_username}</Text>
+        </TouchableOpacity>
+      )}
+      numColumns={2}
+      columnWrapperStyle={styles.row}
+    />
+
 
     {/* Bottom Navigation Bar */}
     <View style={styles.bottomNavBar}>
@@ -302,6 +312,12 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#C4C4C4',
   },
+  profilePic: {
+    margin: 5,
+    width: 100,
+    height: 100,
+    borderRadius: 15
+  }
 });
 
 export default FriendsScreen;

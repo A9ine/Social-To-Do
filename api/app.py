@@ -325,7 +325,7 @@ def getFriends():
     user_id = user_id_record[0]
 
     cursor.execute("""
-        SELECT u.user_id, u.username
+        SELECT u.user_id, u.username, u.profile_pic
         FROM users u
         JOIN friends f ON u.user_id = f.friend_id OR u.user_id = f.user_id
         WHERE (f.user_id = ? OR f.friend_id = ?) AND u.user_id != ? AND f.status = 'accepted'
@@ -336,7 +336,8 @@ def getFriends():
     friend_list = [
         {
             'friend_id': friend[0],
-            'friend_username': friend[1]
+            'friend_username': friend[1],
+            'friend_profile_pic': friend[2]
         }
         for friend in friends
     ]
@@ -866,7 +867,7 @@ def retrievePosts():
     user_id = user_id_record[0]
 
     cursor.execute("""
-    SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username, p.location
+    SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username, p.location, u.profile_pic
     FROM posts p
     JOIN users u ON p.user_id = u.user_id
     LEFT JOIN friends f ON ((p.user_id = f.friend_id AND f.user_id = ?) OR (p.user_id = f.user_id AND f.friend_id = ?))
@@ -892,7 +893,7 @@ def retrievePosts():
 
         # Retrieve all comments for the post
         cursor.execute("""
-        SELECT u.username, c.comment, c.created_at 
+        SELECT u.username, c.comment, c.created_at, u.profile_pic
         FROM post_comments c
         JOIN users u ON c.user_id = u.user_id
         WHERE c.post_id = ?
@@ -903,7 +904,8 @@ def retrievePosts():
         comments_list = [{
             'username': comment[0],
             'comment': comment[1],
-            'created_at': comment[2]
+            'created_at': comment[2],
+            'profile_pic': comment[3]
         } for comment in comments]
 
         posts_list.append({
@@ -915,7 +917,8 @@ def retrievePosts():
             'liked_by_user': liked,
             'like_count': like_count,  # Add like count here
             'comments': comments_list,
-            'location': post[5]
+            'location': post[5],
+            'profile_pic': post[6]
         })
 
     return jsonify({"posts": posts_list}), 200
@@ -1234,6 +1237,76 @@ def edit_task():
     else:
         # Task does not exist
         return jsonify({"error": "Task not found"}), 404
+
+@app.route('/updateProfilePic', methods=['PUT'])
+def update_profile_pic():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+    
+    # Extract the data needed to update the profile picture
+    profile_pic_url = data.get('profile_pic_url')
+    username = data.get('username')
+
+    # Check if the user exists and get their user_id
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id_record = cursor.fetchone()
+    if not user_id_record:
+        return jsonify({"error": "User does not exist"}), 400
+    user_id = user_id_record[0]
+
+    # Update the user's profile picture URL
+    try:
+        cursor.execute("UPDATE users SET profile_pic = ? WHERE user_id = ?", (profile_pic_url, user_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+    # Close the database connection
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Profile picture updated successfully"}), 200
+
+@app.route('/getProfilePicture', methods=['GET'])
+def get_profile_pic():
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    username = request.args.get('username')
+
+    if not username:
+        return jsonify({"error": "Username parameter is missing"}), 400
+
+    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    user_id_record = cursor.fetchone()
+    if not user_id_record:
+        return jsonify({"error": "User does not exist"}), 400
+    user_id = user_id_record[0]
+
+    # Update the user's profile picture URL
+    try:
+        cursor.execute("SELECT profile_pic FROM users WHERE user_id = ?", (user_id,))
+        pic_record = cursor.fetchone()
+        if pic_record:
+            pic = pic_record[0]
+            if pic:
+                return jsonify(pic), 200
+            else:
+                return jsonify(None), 200  # Returning None when the profile picture is empty
+        else:
+            return jsonify({"message": "User does not have a profile picture"}), 200
+    except sqlite3.Error as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+    # Close the database connection
+    cursor.close()
+    conn.close()
+
+
+
 
 
 

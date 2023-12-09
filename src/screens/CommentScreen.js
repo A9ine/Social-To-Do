@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Alert, View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import {Alert, View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -15,16 +15,20 @@ const CommentScreen = ({ route, navigation }) => {
       return;
     }
   
-    const username = await AsyncStorage.getItem('username'); // Assuming you store username in AsyncStorage
+    const username = await AsyncStorage.getItem('username');
+    const profilePic = await AsyncStorage.getItem('profilePic'); // Retrieve the profile pic from AsyncStorage or your source
   
     // Optimistically update UI with the new comment
-    const newCommentObj = { username: username, comment: newComment };
+    const newCommentObj = {
+      username: username,
+      comment: newComment,
+      profile_pic: profilePic // Include the profile picture in the new comment object
+    };
     const updatedComments = [...comments, newCommentObj];
     setComments(updatedComments);
     setNewComment(''); // Reset comment input after sending
   
     try {
-      const username = await AsyncStorage.getItem('username');
       const response = await axios.post('http://127.0.0.1:2323/commentOnPost', {
         post_id: postId,
         username: username,
@@ -45,14 +49,22 @@ const CommentScreen = ({ route, navigation }) => {
   };
   
   
+  
 
   const renderComment = ({ item }) => (
     <View style={styles.commentItem}>
-      <View style={styles.avatar}></View>
+      {item.profile_pic ? (
+        <Image
+          source={{ uri: item.profile_pic }}
+          style={styles.profileImage} 
+        />
+      ) : (
+        <View style={styles.avatar}></View>
+      )}
       <View>
         <Text style={styles.commentUsername}>{item.username}</Text>
         <Text style={styles.commentText}>{item.comment}</Text>
-    </View>
+      </View>
     </View>
   );
 
@@ -91,6 +103,12 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     backgroundColor: '#C4C4C4',
+    marginRight: 10,
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     marginRight: 10,
   },
   commentsList: {

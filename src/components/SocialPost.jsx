@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count, location }) => {
+const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count, location, profilePic }) => {
   const likeIcon = liked ? require('../assets/liked_like_icon.png') : require('../assets/unliked_like_icon.png');
   const likeIconStyle = liked ? styles.likedIcon : styles.actionIcon;
   const commentIcon = require('../assets/comment.png');
@@ -31,11 +31,18 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <View style={styles.avatar}></View>
+        {profilePic ? (
+          <Image
+            source={{ uri: profilePic }}
+            style={styles.profileImage} 
+          />
+        ) : (
+          <View style={styles.avatar}></View>
+        )}
         <View style={styles.userInfoContainer}>
-    <Text style={styles.username}>{text}</Text>
-    {renderLocation()}
-  </View>
+          <Text style={styles.username}>{username}</Text>
+          {renderLocation()}
+        </View>
       </View>
       <Image source={{ uri: pictureUrl }} style={styles.image} />
       <View style={styles.actionsContainer}>
@@ -45,10 +52,10 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
         <TouchableOpacity onPress={onCommentPress}>
           <Image source={commentIcon} style={styles.actionIcon} />
         </TouchableOpacity>
-        <View style= {{left:5}}>
-        <Text style={styles.likes}>
-          {like_count === 1 ? '1 like' : `${like_count} likes`}
-        </Text>
+        <View style={{left: 5}}>
+          <Text style={styles.likes}>
+            {like_count === 1 ? '1 like' : `${like_count} likes`}
+          </Text>
         </View>
       </View>
       {renderViewMoreComments()}
@@ -150,6 +157,12 @@ const styles = StyleSheet.create({
     color: '#8E8E8E', 
     fontSize: 14,
   },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  }
 });
 
 export default SocialPost;
