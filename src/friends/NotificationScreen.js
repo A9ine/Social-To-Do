@@ -33,13 +33,14 @@ const NotificationsScreen = ({ route, navigation }) => {
   };
 
   const renderPendingFriend = ({ item }) => (
-    <View style={styles.friendRequest}>
-      <Text style={styles.friendName}>{item.friend_username}</Text>
+    <View style={styles.userItemContainer}>
+      <View style={styles.avatar}></View>
+      <Text style={styles.userItem}>{item.friend_username}</Text>
       <TouchableOpacity style={styles.acceptButton} onPress={() => handleAcceptFriend(item.friend_username)}>
-        <Text>Accept</Text>
+        <Text style ={styles.buttonText}>Accept</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.denyButton} onPress={() => handleDenyFriend(item.friend_username)}>
-        <Text>Deny</Text>
+        <Text style ={styles.buttonText} >Deny</Text>
       </TouchableOpacity>
     </View>
   );
@@ -56,32 +57,59 @@ const NotificationsScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  userItemContainer: {
+    flexDirection: 'row',
+    padding: 15,
+    marginHorizontal: 10,
+    backgroundColor: '#eaddff', // Light purple background
+    borderRadius: 20,
+    shadowOpacity: 0,
+    shadowRadius: 5,
+    elevation: 3,
+    alignItems: 'center',
+  },
+  userItem: {
+    flex:1 , // Take available space
+    fontSize: 18,
+    color: '#5e35b1',
+  },
+
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#C4C4C4',
+    marginRight: 10,
+  },
   container: {
     flex: 1,
     padding: 10,
-  },
-  friendRequest: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  friendName: {
-    flex: 1,
-    fontSize: 16,
+    backgroundColor: '#f3e9ff',
   },
   acceptButton: {
-    backgroundColor: 'green',
+    backgroundColor: '#a29bfe',
     padding: 5,
     borderRadius: 5,
-    marginRight: 10,
+    marginLeft: 40,
+    height: '80%',
+    width: '20%',
+    alignItems: 'center',
+    justifyContent: 'center', // Center content vertically
   },
   denyButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#C4C4C4',
     padding: 5,
     borderRadius: 5,
+    marginLeft: 10,
+    height: '80%',
+    width: '20%',
+    alignItems: 'center',
+    justifyContent: 'center', // Center content vertically
   },
+
+  buttonText: {
+    
+  }
 });
 
 export default NotificationsScreen;

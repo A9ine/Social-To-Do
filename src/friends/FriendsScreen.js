@@ -97,9 +97,9 @@ const FriendsScreen = ({ navigation }) => {
       }
   };
 
-  const navigateToSettings = () => {
-    navigation.navigate('SettingScreen'); //navigating to SettingScreen
-  }
+  // const navigateToSettings = () => {
+  //   navigation.navigate('SettingScreen'); //navigating to SettingScreen
+  // }
 
   const handleSignOut = async () => {
     try {
@@ -147,31 +147,33 @@ const FriendsScreen = ({ navigation }) => {
       <View style={styles.profileStats}>
         
         <Text style={styles.statItem}>Friends: {friends.length}</Text>
-        <TouchableOpacity onPress={navigateToSettings}>
+        {/* <TouchableOpacity onPress={navigateToSettings}>
           <Image
             style={styles.navIcon}
             source={require('../assets/settings.png')}
           />
+        </TouchableOpacity> */}
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('AddFriendScreen')}
+        >
+          <Text style={styles.addButtonText}>Add Friend</Text>
         </TouchableOpacity>
       </View>
       
       <FlatList
+      
         data={friends}
         keyExtractor={(item) => item.friend_id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.friendItem} onPress={() => handleFriendOptions(item.friend_username)}>
+          <TouchableOpacity style={styles.userItemContainer} onPress={() => handleFriendOptions(item.friend_username)}>
             <View style={styles.avatar}></View>
             <Text style={styles.friendText}>{item.friend_username}</Text>
           </TouchableOpacity>
         )}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
       />
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate('AddFriendScreen')}
-      >
-        <Text style={styles.addButtonText}>Add Friend</Text>
-      </TouchableOpacity>
 
     {/* Bottom Navigation Bar */}
     <View style={styles.bottomNavBar}>
@@ -215,36 +217,29 @@ const FriendsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f3e9ff', // Very light purple
+  },
+
+
+  userItemContainer: {
+    flexDirection: 'column',
+    alignItems: 'center', // Center items horizontally
+    justifyContent: 'center', // Center items vertically
     padding: 10,
-    backgroundColor: '#F3F3F7',
-    position: 'relative',
-  },
-
-  container: {
-    flex: 1,
-  },
-
-  friendItem: {
-    backgroundColor: "#EDE7F6", // Light purple background
-    marginHorizontal: 10,
     marginBottom: 10,
-    borderRadius: 10, // Rounded corners
-    shadowColor: "#9575CD", // Deeper purple for shadow
+    marginHorizontal: 10,
+    backgroundColor: '#eaddff', // Light purple background
+    borderRadius: 20,
     shadowOpacity: 0,
-    shadowRadius: 6,
-    elevation: 5, // Slight elevation for a subtle shadow effect
-    flexDirection: 'row', // Align items in a row
-    alignItems: 'center', // Center items vertically
-    minHeight: 60, // Increase height for prominence
+    shadowRadius: 5,
+    elevation: 3,
+    width: '45%'
   },
   friendText: {
     fontSize: 20, // Larger font size
     fontWeight: 'bold', // Bold for emphasis
-    color: '#673AB7', // Darker purple for contrast
-    flex: 1, // Take up available space
-    marginLeft: 15, // Margin to space out text from the edge
+    color: '#5e35b1', // Darker purple for contrast
   },
 
   navIcon: {
@@ -279,7 +274,8 @@ const styles = StyleSheet.create({
   profileStats: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 10,
+    padding: 15,
+    marginHorizontal: -90,
     alignItems: 'center',
   },
 
@@ -288,29 +284,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-
-  friendItem: {
-    padding: 10,
-    fontSize: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
   addButton: {
-    position: 'absolute',
-    alignSelf: 'center',
-    backgroundColor: '#8A2BE2',
-    padding: 10,
-    borderRadius: 5,
-    top: '50%', // Centered vertically
+    backgroundColor: '#a29bfe',
+    padding: 15,
+    borderRadius: 10,
+    
   },
   addButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },
-  friendItem: {
-    backgroundColor: "#ddd", // Slight background color
-    marginBottom: 5,
-    borderRadius: 5,
+
+  avatar: {
+    margin: 5,
+    width: 100,
+    height: 100,
+    borderRadius: 15,
+    backgroundColor: '#C4C4C4',
   },
 });
 

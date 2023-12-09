@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#a29bfe',
   },
   commentUsername: {
     fontWeight: 'bold',

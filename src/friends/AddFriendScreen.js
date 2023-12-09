@@ -67,7 +67,7 @@ const AddFriendScreen = ({ navigation }) => {
   const confirmAddFriend = (friendUsername) => {
     Alert.alert(
       'Add Friend',
-      `Do you want to add ${friendUsername} as a friend?`,
+      `${friendUsername} want to team up!!`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Yes', onPress: () => handleAddFriend(friendUsername) }
@@ -87,7 +87,10 @@ const AddFriendScreen = ({ navigation }) => {
         data={searchResults}
         keyExtractor={(item) => item.user_id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.userItemContainer} onPress={() => confirmAddFriend(item.username)}>
+          <TouchableOpacity 
+            style={styles.userItemContainer}
+            onPress={() => confirmAddFriend(item.username)}>
+            <View style={styles.avatar}></View>
             <Text style={styles.userItem}>{item.username}</Text>
           </TouchableOpacity>
         )}
@@ -115,6 +118,7 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   userItemContainer: {
+    flexDirection: 'row',
     padding: 15,
     marginBottom: 10,
     marginHorizontal: 10,
@@ -127,6 +131,13 @@ const styles = StyleSheet.create({
   userItem: {
     fontSize: 20,
     color: '#5e35b1', // Dark purple for item text
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#C4C4C4',
+    marginRight: 10,
   },
 });
 
