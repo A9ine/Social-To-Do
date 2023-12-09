@@ -40,7 +40,7 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
           <View style={styles.avatar}></View>
         )}
         <View style={styles.userInfoContainer}>
-          <Text style={styles.username}>{username}</Text>
+          <Text style={styles.username}>{text}</Text>
           {renderLocation()}
         </View>
       </View>

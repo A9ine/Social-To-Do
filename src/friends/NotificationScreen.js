@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -34,13 +34,20 @@ const NotificationsScreen = ({ route, navigation }) => {
 
   const renderPendingFriend = ({ item }) => (
     <View style={styles.userItemContainer}>
-      <View style={styles.avatar}></View>
+      {item.profile_pic ? (
+        <Image
+          source={{ uri: item.profile_pic }}
+          style={styles.profileImage}
+        />
+      ) : (
+        <View style={styles.avatar}></View>
+      )}
       <Text style={styles.userItem}>{item.friend_username}</Text>
       <TouchableOpacity style={styles.acceptButton} onPress={() => handleAcceptFriend(item.friend_username)}>
-        <Text style ={styles.buttonText}>Accept</Text>
+        <Text style={styles.buttonText}>Accept</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.denyButton} onPress={() => handleDenyFriend(item.friend_username)}>
-        <Text style ={styles.buttonText} >Deny</Text>
+        <Text style={styles.buttonText}>Deny</Text>
       </TouchableOpacity>
     </View>
   );
@@ -106,7 +113,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center', // Center content vertically
   },
-
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
   buttonText: {
     
   }

@@ -360,7 +360,7 @@ def getPendingFriends():
 
     # Adjusted query to select pending friend requests where the user is the recipient
     cursor.execute("""
-        SELECT u.user_id, u.username
+        SELECT u.user_id, u.username, u.profile_pic
         FROM users u
         JOIN friends f ON u.user_id = f.user_id
         WHERE f.friend_id = ? AND f.status = 'pending'
@@ -371,7 +371,8 @@ def getPendingFriends():
     pending_friend_list = [
         {
             'friend_id': friend[0],
-            'friend_username': friend[1]
+            'friend_username': friend[1],
+            'profile_pic': friend[2]
         }
         for friend in pending_friends
     ]
