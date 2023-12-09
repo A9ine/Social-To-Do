@@ -188,6 +188,8 @@ const AddTaskScreen = ({ route, navigation }) => {
           }}
           buttonStyle={styles.options}
           buttonTextStyle={styles.title}
+          rowStyle={styles.dropdownStyle}
+          dropdownStyle= {{borderRadius: 30}}
           defaultValueByIndex={0} 
           defaultButtonText='Options'
         />
@@ -264,12 +266,19 @@ const styles = StyleSheet.create({
   },
   options: {
     backgroundColor: 'white', 
-    bottom: 24, 
+    marginTop: -20,
     left: 190, 
     borderRadius: 20,
     width: 130,
     height: 30
-  }
+  },
+  dropdownStyle: {
+    borderBottomColor: '#a29bfe', // Light purple 
+    shadowOpacity: 0,
+    shadowRadius: 5,
+    elevation: 3,
+    borderBottomWidth: 1, 
+  },
   
 });
 

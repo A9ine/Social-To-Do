@@ -78,9 +78,8 @@ const AddFriendScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.input}
-        placeholder="Search users"
-        placeholderTextColor="#888" // Added placeholder text color
+        style={[styles.modal, {borderWidth: 1, borderColor: '#7a42f4', backgroundColor: '#f3e9ff'}]}
+        placeholder="Search friends"
         value={searchText}
         onChangeText={setSearchText}
       />
@@ -103,21 +102,25 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f3e9ff', // Very light purple
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#7a42f4', // Bold purple for border
-    padding: 15,
+
+  modal: { 
     marginBottom: 20,
-    borderRadius: 8,
-    fontSize: 16,
+    marginHorizontal: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0,
+    shadowRadius: 4,
+    elevation: 5,
+    padding: 15,
   },
   userItemContainer: {
     padding: 15,
     marginBottom: 10,
+    marginHorizontal: 10,
     backgroundColor: '#eaddff', // Light purple background
-    borderRadius: 8,
-    shadowColor: '#7a42f4', // Purple shadow for depth
-    shadowOpacity: 0.1,
+    borderRadius: 20,
+    shadowOpacity: 0,
     shadowRadius: 5,
     elevation: 3,
   },
