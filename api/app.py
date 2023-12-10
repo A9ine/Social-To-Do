@@ -1,35 +1,46 @@
 from datetime import datetime
 from flask import Flask, request, jsonify
 import sqlite3
-import collections
 import smtplib, ssl
 import math
 import random
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import mysql.connector
+from datetime import datetime
 
 
 app = Flask(__name__)
 
 def db_connection():
     """
-    Establishes a connection to the SQLite database.
+    Establishes a connection to the MySQL database.
 
     :return: connection object if successful, None otherwise
     """
     conn = None
+    hostname = "socialtodo.mysql.database.azure.com"
+    username = "azhang237"
+    password = "Y8@dcb!#"
+    database = "social-to-do"
+
     try:
-        conn = sqlite3.connect('social-to-do.sqlite')
-    except sqlite3.error as e:
-        print(e)
+        conn = mysql.connector.connect(
+            host=hostname,
+            user=username,
+            passwd=password,
+            database=database
+        )
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
     return conn
+
 
 @app.route('/register', methods=['POST'])
 def register():
     conn = db_connection()
     cursor = conn.cursor()
 
-    # Extract user details from the request
     data = request.get_json()
     first_name = data.get('first_name')
     last_name = data.get('last_name')
@@ -37,36 +48,33 @@ def register():
     username = data.get('username').lower()
     password = data.get('password')
 
-    # Validate input fields
     if not first_name or not last_name or not email or not username or not password:
         return jsonify({"error": "All fields are required and must not be blank."}), 400
 
-    # Check if the username or email already exists
-    cursor.execute("SELECT * FROM users WHERE username = ? OR email = ?", (username, email))
-    existing_user = cursor.fetchone()
-    if existing_user:
-        return jsonify({"error": "Username or email already exists."}), 409  # 409 Conflict
-
     try:
-        # Rest of your code to insert data into the database
+        cursor.execute("SELECT * FROM users WHERE username = %s OR email = %s", (username, email))
+        existing_user = cursor.fetchone()
+        if existing_user:
+            return jsonify({"error": "Username or email already exists."}), 409
+
         sql = """INSERT INTO users (first_name, last_name, email, username, password, timestamp)
-                 VALUES (?, ?, ?, ?, ?, ?)"""
+                 VALUES (%s, %s, %s, %s, %s, %s)"""
         timestamp = datetime.now().isoformat()
         cursor.execute(sql, (first_name, last_name, email, username, password, timestamp))
         conn.commit()
         return jsonify({"message": "User registered successfully"}), 200
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         print(e)
         return jsonify({"error": "Database error occurred."}), 500
     finally:
         conn.close()
+
 
 @app.route('/login', methods=['POST'])
 def login():
     conn = db_connection()
     cursor = conn.cursor()
 
-    # Get credentials from request arguments
     data = request.get_json()
     username_or_email = data['username_or_email'].lower()
     password = data['password']
@@ -74,8 +82,7 @@ def login():
     field = 'email' if '@' in username_or_email and '.' in username_or_email else 'username'
 
     try:
-        # Query the database to find a user
-        cursor.execute(f"SELECT user_id, username, first_name FROM users WHERE {field} = ? AND password = ?", (username_or_email, password))
+        cursor.execute(f"SELECT user_id, username, first_name FROM users WHERE {field} = %s AND password = %s", (username_or_email, password))
         user = cursor.fetchone()
 
         if user:
@@ -83,11 +90,12 @@ def login():
             return jsonify({"authenticated": True, "user_id": user_id, "username": username, "first_name": first_name}), 200
         else:
             return jsonify({"authenticated": False}), 200
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         print(e)
         return jsonify({"error": "Database error occurred."}), 500
     finally:
         conn.close()
+
 
 
 
@@ -105,19 +113,19 @@ def sendEmail():
     for i in range(6):
         verification_code += string[math.floor(random.random() * length)]
 
-    cursor.execute("SELECT user_id FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT user_id FROM users WHERE email =  %s", (email,))
     user_id = cursor.fetchone()
 
     # Update or insert verification code in the database
     if user_id:
         # Check if a verification code already exists for this user
-        cursor.execute("SELECT * FROM verification_codes WHERE user_id = ?", (user_id[0],))
+        cursor.execute("SELECT * FROM verification_codes WHERE user_id =  %s", (user_id[0],))
         if cursor.fetchone():
             # Update existing verification code
-            cursor.execute("UPDATE verification_codes SET verification_code = ? WHERE user_id = ?", (verification_code, user_id[0]))
+            cursor.execute("UPDATE verification_codes SET verification_code =  %s WHERE user_id =  %s", (verification_code, user_id[0]))
         else:
             # Insert new verification code
-            cursor.execute("INSERT INTO verification_codes (user_id, verification_code) VALUES (?, ?)", (user_id[0], verification_code))
+            cursor.execute("INSERT INTO verification_codes (user_id, verification_code) VALUES ( %s,  %s)", (user_id[0], verification_code))
 
         conn.commit()
 
@@ -168,19 +176,19 @@ def changePassword():
 
     try:
         # Verify the verification code
-        cursor.execute("SELECT user_id FROM verification_codes WHERE verification_code = ?", (verification_code,))
+        cursor.execute("SELECT user_id FROM verification_codes WHERE verification_code =  %s", (verification_code,))
         verification_data = cursor.fetchone()
 
         if verification_data:
             user_id = verification_data[0]
 
             # Verify the email and get the corresponding user_id
-            cursor.execute("SELECT user_id FROM users WHERE email = ?", (email,))
+            cursor.execute("SELECT user_id FROM users WHERE email =  %s", (email,))
             user_data = cursor.fetchone()
 
             if user_data and user_id == user_data[0]:
                 # Update the password
-                cursor.execute("UPDATE users SET password = ? WHERE user_id = ?", (new_password, user_id))
+                cursor.execute("UPDATE users SET password =  %s WHERE user_id =  %s", (new_password, user_id))
                 conn.commit()
                 return jsonify({"success": "Password updated successfully"}), 200
             else:
@@ -188,7 +196,7 @@ def changePassword():
         else:
             return jsonify({"error": "Invalid verification code."}), 401
 
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         print(e)
         return jsonify({"error": "Database error occurred."}), 500
     finally:
@@ -208,21 +216,21 @@ def addFriend():
     if not user1 or not user2:
         return jsonify({"error": "2 users are required."}), 400
     
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(user1,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s",(user1,))
     user1_id = cursor.fetchone()
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(user2,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s",(user2,))
     user2_id = cursor.fetchone()
 
     if not user1_id or not user2_id:
         return jsonify({"error": "One or more of the users do not exist"}), 400
     
     #check if friendship already exist 
-    cursor.execute("SELECT * FROM friends WHERE(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)", (user1_id[0], user2_id[0], user2_id[0], user1_id[0]))
+    cursor.execute("SELECT * FROM friends WHERE(user_id = %s AND friend_id = %s) OR (user_id = %s AND friend_id = %s)", (user1_id[0], user2_id[0], user2_id[0], user1_id[0]))
     if cursor.fetchone():
         return jsonify({"error": "Friendship Already Exists"}), 400
     
     #add new friendship
-    cursor.execute("INSERT INTO friends (user_id, friend_id, status, created_at, updated_at) VALUES (?, ?, 'pending', datetime('now'), datetime('now'))", (user1_id[0], user2_id[0]))
+    cursor.execute("INSERT INTO friends (user_id, friend_id, status, created_at, updated_at) VALUES (%s, %s, 'pending', NOW(), NOW())", (user1_id[0], user2_id[0]))
     conn.commit()
     return jsonify({"message": "Friendship added sucessfully"}), 200
 
@@ -240,9 +248,9 @@ def deleteFriend():
     if not user1 or not user2:
         return jsonify({"error": "Both users are required."}), 400
     
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (user1,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (user1,))
     user1_id = cursor.fetchone()
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (user2,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (user2,))
     user2_id = cursor.fetchone()
 
     if not user1_id or not user2_id:
@@ -251,8 +259,8 @@ def deleteFriend():
     # Check if friendship exists
     cursor.execute("""
         SELECT * FROM friends 
-        WHERE (user_id = ? AND friend_id = ?) 
-        OR (user_id = ? AND friend_id = ?)
+        WHERE (user_id = %s AND friend_id = %s) 
+        OR (user_id = %s AND friend_id = %s)
     """, (user1_id[0], user2_id[0], user2_id[0], user1_id[0]))
     if not cursor.fetchone():
         return jsonify({"error": "Friendship does not exist"}), 400
@@ -260,8 +268,8 @@ def deleteFriend():
     # Delete the friendship
     cursor.execute("""
         DELETE FROM friends 
-        WHERE (user_id = ? AND friend_id = ?) 
-        OR (user_id = ? AND friend_id = ?)
+        WHERE (user_id = %s AND friend_id = %s) 
+        OR (user_id = %s AND friend_id = %s)
     """, (user1_id[0], user2_id[0], user2_id[0], user1_id[0]))
     conn.commit()
 
@@ -281,26 +289,26 @@ def acceptFriend():
 
     try:
         # Get user IDs from usernames
-        cursor.execute("SELECT user_id FROM users WHERE username = ?", (user1,))
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (user1,))
         user1_id = cursor.fetchone()
-        cursor.execute("SELECT user_id FROM users WHERE username = ?", (user2,))
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (user2,))
         user2_id = cursor.fetchone()
 
         if not user1_id or not user2_id:
             return jsonify({"error": "One or more users not found"}), 404
 
         # Check if the friendship is in a 'pending' state
-        cursor.execute("SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'", (user2_id[0], user1_id[0]))
+        cursor.execute("SELECT * FROM friends WHERE user_id = %s AND friend_id = %s AND status = 'pending'", (user2_id[0], user1_id[0]))
         if not cursor.fetchone():
             return jsonify({"error": "No pending friendship request found"}), 404
 
         # Update the status of the friendship to 'accepted'
-        cursor.execute("UPDATE friends SET status = 'accepted', updated_at = datetime('now') WHERE user_id = ? AND friend_id = ?", (user2_id[0], user1_id[0]))
+        cursor.execute("UPDATE friends SET status = 'accepted', updated_at = NOW() WHERE user_id = %s AND friend_id = %s", (user2_id[0], user1_id[0]))
         conn.commit()
 
         return jsonify({"message": "Friend request accepted"}), 200
 
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         print(e)
         return jsonify({"error": "Database error occurred"}), 500
 
@@ -316,7 +324,7 @@ def getFriends():
     cursor = conn.cursor()
     username = request.args.get('username')
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
     
     if not user_id_record:
@@ -328,7 +336,7 @@ def getFriends():
         SELECT u.user_id, u.username, u.profile_pic
         FROM users u
         JOIN friends f ON u.user_id = f.friend_id OR u.user_id = f.user_id
-        WHERE (f.user_id = ? OR f.friend_id = ?) AND u.user_id != ? AND f.status = 'accepted'
+        WHERE (f.user_id = %s OR f.friend_id = %s) AND u.user_id != %s AND f.status = 'accepted'
     """, (user_id, user_id, user_id))
 
     friends = cursor.fetchall()
@@ -350,7 +358,7 @@ def getPendingFriends():
     cursor = conn.cursor()
     username = request.args.get('username')
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
     
     if not user_id_record:
@@ -363,7 +371,7 @@ def getPendingFriends():
         SELECT u.user_id, u.username, u.profile_pic
         FROM users u
         JOIN friends f ON u.user_id = f.user_id
-        WHERE f.friend_id = ? AND f.status = 'pending'
+        WHERE f.friend_id = %s AND f.status = 'pending'
     """, (user_id,))
 
     pending_friends = cursor.fetchall()
@@ -397,26 +405,26 @@ def denyFriend():
 
     try:
         # Get user IDs from usernames
-        cursor.execute("SELECT user_id FROM users WHERE username = ?", (user1,))
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (user1,))
         user1_id = cursor.fetchone()
-        cursor.execute("SELECT user_id FROM users WHERE username = ?", (user2,))
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (user2,))
         user2_id = cursor.fetchone()
 
         if not user1_id or not user2_id:
             return jsonify({"error": "One or more users not found"}), 404
 
         # Check if the friendship is in a 'pending' state
-        cursor.execute("SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'", (user2_id[0], user1_id[0]))
+        cursor.execute("SELECT * FROM friends WHERE user_id = %s AND friend_id = %s AND status = 'pending'", (user2_id[0], user1_id[0]))
         if not cursor.fetchone():
             return jsonify({"error": "No pending friendship request found"}), 404
 
         # Update the status of the friendship to 'denied'
-        cursor.execute("UPDATE friends SET status = 'denied', updated_at = datetime('now') WHERE user_id = ? AND friend_id = ?", (user2_id[0], user1_id[0]))
+        cursor.execute("UPDATE friends SET status = 'denied', updated_at = NOW() WHERE user_id = %s AND friend_id = %s", (user2_id[0], user1_id[0]))
         conn.commit()
 
         return jsonify({"message": "Friend request denied"}), 200
 
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         print(e)
         return jsonify({"error": "Database error occurred"}), 500
 
@@ -437,17 +445,19 @@ def addTask():
     task_category = data.get('task_category')
     due_date = data.get("due_date")
 
+    due_date_mysql_format = datetime.fromisoformat(due_date.replace("Z", "+00:00")).strftime('%Y-%m-%d %H:%M:%S')
+
     if not user or not task or not task_category or not due_date:
         return jsonify({"error": "all fields need to be filled"}), 400
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(user,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s",(user,))
     user_id_record = cursor.fetchone()
     
     if not user_id_record:
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    cursor.execute("INSERT INTO tasks(user_id, task, task_category, created_at, updated_at, due_date, completed) VALUES (?, ?, ?, datetime('now'), datetime('now'), ?, ?)", (user_id, task, task_category, due_date, False))
+    cursor.execute("INSERT INTO tasks(user_id, task, task_category, created_at, updated_at, due_date, completed) VALUES (%s, %s, %s, NOW(), NOW(), %s, %s)", (user_id, task, task_category, due_date_mysql_format, False))
     conn.commit()
     return jsonify({"message": "Task added sucessfully"}), 200
 
@@ -460,7 +470,7 @@ def get_friends_list(user_id):
         SELECT u.user_id, u.username
         FROM users u
         JOIN friends f ON u.user_id = f.friend_id OR u.user_id = f.user_id
-        WHERE (f.user_id = ? OR f.friend_id = ?) AND u.user_id != ? AND f.status = 'accepted'
+        WHERE (f.user_id = %s OR f.friend_id = %s) AND u.user_id != %s AND f.status = 'accepted'
     """, (user_id, user_id, user_id))
 
     friends = cursor.fetchall()
@@ -471,7 +481,7 @@ def get_incompleted_tasks(user_id):
     conn = db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM tasks WHERE (user_id = ? AND completed = ?)", (user_id, False))
+    cursor.execute("SELECT * FROM tasks WHERE (user_id = %s AND completed = %s)", (user_id, False))
     tasks = cursor.fetchall()
 
     # tasks_list = []
@@ -487,7 +497,7 @@ def matchTasks():
     username = request.args.get('username', '').lower()
 
     # Get the user ID for the given username
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
     if not user_id_record:
         return jsonify({"error": "User not found"}), 404
@@ -530,7 +540,7 @@ def matchTasks():
     # #    FROM tasks t1
     # #    JOIN friends f ON (t1.user_id = f.user_id OR t1.user_id = f.friend_id)
     # #    JOIN tasks t2 ON (f.friend_id = t2.user_id OR f.user_id = t2.user_id) AND t1.task_category = t2.task_category
-    # #    WHERE (t1.user_id = ?) AND t1.task_id != t2.task_id AND f.status = 'accepted'
+    # #    WHERE (t1.user_id = %s) AND t1.task_id != t2.task_id AND f.status = 'accepted'
     # #""", (user_id,))
 
     # cursor.execute("""
@@ -539,7 +549,7 @@ def matchTasks():
     #     JOIN friends f ON (t1.user_id = f.user_id OR t1.user_id = f.friend_id)
     #     JOIN tasks t2 ON (f.friend_id = t2.user_id OR f.user_id = t2.user_id) AND t1.task_category = t2.task_category
     #     JOIN users u ON (t2.user_id = u.user_id OR t2.user_id = f.friend_id)  -- Make sure this line is correctly joining the users table
-    #     WHERE t1.user_id = ? AND t1.task_id != t2.task_id AND f.status = 'accepted'
+    #     WHERE t1.user_id = %s AND t1.task_id != t2.task_id AND f.status = 'accepted'
     # """, (user_id,))
     
     # matched_tasks = cursor.fetchall()
@@ -584,14 +594,14 @@ def getIncompletedTasks():
     cursor = conn.cursor()
 
     user = request.args.get('username')
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(user,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s",(user,))
     user_id_record = cursor.fetchone()
     
     if not user_id_record:
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    cursor.execute("SELECT * FROM tasks WHERE (user_id = ? AND completed = ?)", (user_id, False))
+    cursor.execute("SELECT * FROM tasks WHERE (user_id = %s AND completed = %s)", (user_id, False))
     tasks = cursor.fetchall()
 
     tasks_list = [
@@ -617,12 +627,12 @@ def markTaskAsDone():
     data = request.get_json()
     task_id = data.get('task_id')
     task_id = int(task_id)
-    cursor.execute("SELECT * FROM tasks WHERE task_id = ?", (task_id,))
+    cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (task_id,))
     task = cursor.fetchone()
     if not task:
         return jsonify({"error": "Task Does Not Exist"}), 400
     
-    cursor.execute("UPDATE tasks SET completed = ? WHERE task_id = ?", (True, task_id))
+    cursor.execute("UPDATE tasks SET completed = %s WHERE task_id = %s", (True, task_id))
     conn.commit()
 
     return jsonify({'message': "Task marked as done successfully"}), 200
@@ -635,14 +645,14 @@ def getAllTasks():
     cursor = conn.cursor()
 
     user = request.args.get('username').lower()
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(user,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s",(user,))
     user_id_record = cursor.fetchone()
     
     if not user_id_record:
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    cursor.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT * FROM tasks WHERE user_id = %s", (user_id,))
     tasks = cursor.fetchall()
 
     tasks_list = [
@@ -674,14 +684,14 @@ def sendChat():
     if not username or not group_id or not message:
         return jsonify({"error": "Missing Data"}), 400
     
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s",(username,))
     user_id_record = cursor.fetchone()
     
     if not user_id_record:
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    cursor.execute("INSERT INTO chat_messages(group_id, user_id, message) VALUES (?, ?, ?)", (group_id, user_id, message))
+    cursor.execute("INSERT INTO chat_messages(group_id, user_id, message) VALUES (%s, %s, %s)", (group_id, user_id, message))
     conn.commit()
 
     return jsonify({"message": "Chat Sent Successfully"}), 200
@@ -697,13 +707,13 @@ def getChat():
     if not group_id:
         return jsonify({"error": "group_id Does Not Exist"}), 400
     
-    cursor.execute("SELECT user_id, message, sent_at FROM chat_messages WHERE group_id = ? ORDER BY sent_at ASC", (group_id,))
+    cursor.execute("SELECT user_id, message, sent_at FROM chat_messages WHERE group_id = %s ORDER BY sent_at ASC", (group_id,))
     messages = cursor.fetchall()
 
     usernames = []
     for message in messages:
         user_id = message[0]
-        cursor.execute("SELECT username FROM users WHERE user_id = ?",(user_id,))
+        cursor.execute("SELECT username FROM users WHERE user_id = %s",(user_id,))
         user_id_record = cursor.fetchone()
         if not user_id_record:
             return jsonify({"error": "User Does Not Exist"}), 400
@@ -741,20 +751,20 @@ def startChat():
     if not group_name or not created_by or not members:
         return jsonify({"error": "Missing Info"}), 400
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(created_by,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s",(created_by,))
     created_by_record = cursor.fetchone()
     
     if not created_by_record:
         return jsonify({"error": "User Does Not Exist 1"}), 400
     created_by = created_by_record[0]
     
-    cursor.execute("INSERT INTO groups(group_name, created_by, created_at) VALUES (?,?, datetime('now'))", (group_name, created_by))
+    cursor.execute("INSERT INTO `groups`(group_name, created_by, created_at) VALUES (%s,%s, NOW())", (group_name, created_by))
     group_id = cursor.lastrowid
 
     user_ids = []
 
     for username in members:
-        cursor.execute("SELECT user_id FROM users WHERE username = ?",(username,))
+        cursor.execute("SELECT user_id FROM users WHERE username = %s",(username,))
         user_id_record = cursor.fetchone()
         
         if not user_id_record:
@@ -765,7 +775,7 @@ def startChat():
     user_ids.append(created_by)
 
     for user_id in user_ids:
-        cursor.execute("INSERT INTO group_members (group_id, user_id, joined_at) VALUES (?,?, datetime('now'))", (group_id, user_id))
+        cursor.execute("INSERT INTO group_members (group_id, user_id, joined_at) VALUES (%s,%s, NOW())", (group_id, user_id))
     
     conn.commit()
 
@@ -781,7 +791,7 @@ def getUserChats():
         return jsonify({"error": "Username is required."}), 400
 
     try:
-        cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
         user_id_record = cursor.fetchone()
 
         if not user_id_record:
@@ -791,9 +801,9 @@ def getUserChats():
 
         cursor.execute("""
             SELECT g.group_id, g.group_name
-            FROM groups g
+            FROM `groups` g
             JOIN group_members gm ON g.group_id = gm.group_id
-            WHERE gm.user_id = ?
+            WHERE gm.user_id = %s
         """, (user_id,))
 
         groups = cursor.fetchall()
@@ -802,7 +812,7 @@ def getUserChats():
 
         return jsonify({"groups": group_list}), 200
 
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         print(e)
         return jsonify({"error": "Database error occurred."}), 500
 
@@ -827,14 +837,14 @@ def makePost():
     if loc == None:
         loc = None
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
     
     if not user_id_record:
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    cursor.execute("SELECT task FROM tasks WHERE task_id = ?", (task,))
+    cursor.execute("SELECT task FROM tasks WHERE task_id = %s", (task,))
 
     task_record = cursor.fetchone()
     if not task_record:
@@ -844,10 +854,10 @@ def makePost():
     # Insert the new post into the posts table
     cursor.execute("""
         INSERT INTO posts (user_id, content, picture, location, created_at, updated_at)
-        VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
+        VALUES (%s, %s, %s, %s, NOW(), NOW())
     """, (user_id, f'{username} completed: {task_content}', url, loc))
 
-    cursor.execute("UPDATE tasks SET completed = ? WHERE task_id = ?", (True, task))
+    cursor.execute("UPDATE tasks SET completed = %s WHERE task_id = %s", (True, task))
     conn.commit()
     return jsonify({"message": "Post created successfully"}), 200
 
@@ -860,7 +870,7 @@ def retrievePosts():
     username = request.args.get('username')
     username = str(username).lower()
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
 
     if not user_id_record:
@@ -871,8 +881,8 @@ def retrievePosts():
     SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username, p.location, u.profile_pic
     FROM posts p
     JOIN users u ON p.user_id = u.user_id
-    LEFT JOIN friends f ON ((p.user_id = f.friend_id AND f.user_id = ?) OR (p.user_id = f.user_id AND f.friend_id = ?))
-    WHERE (p.user_id = ? OR f.status = 'accepted') 
+    LEFT JOIN friends f ON ((p.user_id = f.friend_id AND f.user_id = %s) OR (p.user_id = f.user_id AND f.friend_id = %s))
+    WHERE (p.user_id = %s OR f.status = 'accepted') 
     ORDER BY p.created_at DESC
 """, (user_id, user_id, user_id))
 
@@ -882,13 +892,13 @@ def retrievePosts():
     for post in posts:
         # Check if the user has liked the post
         cursor.execute("""
-        SELECT COUNT(1) FROM post_likes WHERE post_id = ? AND user_id = ?
+        SELECT COUNT(1) FROM post_likes WHERE post_id = %s AND user_id = %s
         """, (post[0], user_id))
         liked = cursor.fetchone()[0] > 0
 
         # Get like count for the post
         cursor.execute("""
-        SELECT COUNT(*) FROM post_likes WHERE post_id = ?
+        SELECT COUNT(*) FROM post_likes WHERE post_id = %s
         """, (post[0],))
         like_count = cursor.fetchone()[0]
 
@@ -897,7 +907,7 @@ def retrievePosts():
         SELECT u.username, c.comment, c.created_at, u.profile_pic
         FROM post_comments c
         JOIN users u ON c.user_id = u.user_id
-        WHERE c.post_id = ?
+        WHERE c.post_id = %s
         ORDER BY c.created_at DESC
         """, (post[0],))
         
@@ -946,14 +956,14 @@ def searchUser():
 
     # The SQL query to search for users, excluding the current user and their friends
     search_query = """
-        SELECT u.user_id, u.username
+        SELECT u.user_id, u.username, u.profile_pic
         FROM users u
-        WHERE u.username LIKE ?
-        AND u.user_id != ?
+        WHERE u.username LIKE %s
+        AND u.user_id != %s
         AND NOT EXISTS (
             SELECT 1 FROM friends f
-            WHERE (f.user_id = u.user_id AND f.friend_id = ?)
-            OR (f.friend_id = u.user_id AND f.user_id = ?)
+            WHERE (f.user_id = u.user_id AND f.friend_id = %s)
+            OR (f.friend_id = u.user_id AND f.user_id = %s)
         )
     """
 
@@ -961,7 +971,7 @@ def searchUser():
     users = cursor.fetchall()
     conn.close()
 
-    users_list = [{'user_id': user[0], 'username': user[1]} for user in users]
+    users_list = [{'user_id': user[0], 'username': user[1], 'profile_pic': user[2]} for user in users]
 
     return jsonify({"users": users_list}), 200
 
@@ -982,7 +992,7 @@ def updatePassword():
 
     try:
         # Check if the old password is correct
-        cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
+        cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
         user_record = cursor.fetchone()
 
         if not user_record:
@@ -992,12 +1002,12 @@ def updatePassword():
             return jsonify({"error": "Incorrect old password."}), 401
 
         # Update the password
-        cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+        cursor.execute("UPDATE users SET password = %s WHERE username = %s", (new_password, username))
         conn.commit()
 
         return jsonify({"message": "Password updated successfully"}), 200
 
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         print(e)
         return jsonify({"error": "Database error occurred."}), 500
 
@@ -1018,7 +1028,7 @@ def updateEmail():
         return jsonify({"error": "All fields are required."}), 400
 
     try:
-        cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
         user_id_record = cursor.fetchone()
 
         if not user_id_record:
@@ -1026,7 +1036,7 @@ def updateEmail():
         
         user_id = user_id_record[0]
 
-        cursor.execute("SELECT verification_code FROM verification_codes WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT verification_code FROM verification_codes WHERE user_id = %s", (user_id,))
         code_record = cursor.fetchone()
 
         if not code_record or code_record[0] != verification_code:
@@ -1035,12 +1045,12 @@ def updateEmail():
             return jsonify({"error": "Invalid verification code."}), 401
 
         # Update the email
-        cursor.execute("UPDATE users SET email = ? WHERE username = ?", (new_email, username))
+        cursor.execute("UPDATE users SET email = %s WHERE username = %s", (new_email, username))
         conn.commit()
 
         return jsonify({"message": "Email updated successfully"}), 200
 
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         print(e)
         return jsonify({"error": "Database error occurred."}), 500
 
@@ -1064,7 +1074,7 @@ def sendVerificationEmail():
         verification_code += string[math.floor(random.random() * length)]
 
     # Retrieve user_id using username
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id = cursor.fetchone()
 
     if not user_id:
@@ -1072,11 +1082,11 @@ def sendVerificationEmail():
         return jsonify({"error": "User not found"}), 404
 
     # Update or insert verification code in the database
-    cursor.execute("SELECT * FROM verification_codes WHERE user_id = ?", (user_id[0],))
+    cursor.execute("SELECT * FROM verification_codes WHERE user_id = %s", (user_id[0],))
     if cursor.fetchone():
-        cursor.execute("UPDATE verification_codes SET verification_code = ? WHERE user_id = ?", (verification_code, user_id[0]))
+        cursor.execute("UPDATE verification_codes SET verification_code = %s WHERE user_id = %s", (verification_code, user_id[0]))
     else:
-        cursor.execute("INSERT INTO verification_codes (user_id, verification_code) VALUES (?, ?)", (user_id[0], verification_code))
+        cursor.execute("INSERT INTO verification_codes (user_id, verification_code) VALUES (%s, %s)", (user_id[0], verification_code))
     
     conn.commit()
 
@@ -1116,7 +1126,7 @@ def like_post():
     username = data.get('username').lower()
     print(username)
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?",(username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s",(username,))
     user_id_record = cursor.fetchone()
     
     if not user_id_record:
@@ -1124,14 +1134,14 @@ def like_post():
         return jsonify({"error": "User Does Not Exist"}), 400
     user_id = user_id_record[0]
 
-    cursor.execute("SELECT * FROM post_likes WHERE post_id=? AND user_id=?", (post_id, user_id))
+    cursor.execute("SELECT * FROM post_likes WHERE post_id=%s AND user_id=%s", (post_id, user_id))
     like = cursor.fetchone()
 
     if like:
         print("2")
         return jsonify({"message": "User has already liked this post"}), 400
 
-    cursor.execute("INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)", (post_id, user_id))
+    cursor.execute("INSERT INTO post_likes (post_id, user_id) VALUES (%s, %s)", (post_id, user_id))
     conn.commit()
     return jsonify({"message": "Post liked successfully"}), 200
 
@@ -1150,14 +1160,14 @@ def comment_on_post():
     print(comment)
 
     # Convert username to user_id
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
     if not user_id_record:
         return jsonify({"error": "User does not exist"}), 400
     user_id = user_id_record[0]
 
 
-    cursor.execute("INSERT INTO post_comments (post_id, user_id, comment) VALUES (?, ?, ?)", (post_id, user_id, comment))
+    cursor.execute("INSERT INTO post_comments (post_id, user_id, comment) VALUES (%s, %s, %s)", (post_id, user_id, comment))
     conn.commit()
     return jsonify({"message": "Comment added successfully"}), 200
 
@@ -1171,14 +1181,14 @@ def unlike_post():
     post_id = data.get('post_id')
 
     # Convert username to user_id
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
     if not user_id_record:
         return jsonify({"error": "User does not exist"}), 400
     user_id = user_id_record[0]
 
     # Remove the like from the post_likes table
-    cursor.execute("DELETE FROM post_likes WHERE user_id = ? AND post_id = ?", (user_id, post_id))
+    cursor.execute("DELETE FROM post_likes WHERE user_id = %s AND post_id = %s", (user_id, post_id))
     conn.commit()
 
     return jsonify({"message": "Post unliked successfully"}), 200
@@ -1198,7 +1208,7 @@ def get_post_likes():
     except ValueError:
         return jsonify({"error": "Invalid post_id parameter"}), 400
 
-    cursor.execute("SELECT COUNT(*) FROM post_likes WHERE post_id = ?", (post_id,))
+    cursor.execute("SELECT COUNT(*) FROM post_likes WHERE post_id = %s", (post_id,))
     likes_count = cursor.fetchone()[0]
 
     return jsonify({"post_id": post_id, "likes_count": likes_count}), 200
@@ -1215,23 +1225,23 @@ def edit_task():
     new_description = data.get('new_description')
     new_due_date = data.get('new_due_date') 
     new_task_category = data.get('new_task_category') 
+    due_date_mysql_format = datetime.fromisoformat(new_due_date.replace("Z", "+00:00")).strftime('%Y-%m-%d %H:%M:%S')
 
 
-    print(task_id)
 
     # Check if the task exists
-    cursor.execute("SELECT * FROM tasks WHERE task_id = ?", (task_id,))
+    cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (task_id,))
     task = cursor.fetchone()
     
     if task:
         # Update the task if it exists
         cursor.execute("""
             UPDATE tasks
-            SET task = ?,
-                due_date = ?,
-                task_category = ?
-            WHERE task_id = ?
-        """, (new_description, new_due_date, task_id, new_task_category))
+            SET task = %s,
+                due_date = %s,
+                task_category = %s
+            WHERE task_id = %s
+        """, (new_description, due_date_mysql_format, task_id, new_task_category))
         
         conn.commit()
         return jsonify({"message": "Task updated successfully"}), 200
@@ -1250,7 +1260,7 @@ def update_profile_pic():
     username = data.get('username')
 
     # Check if the user exists and get their user_id
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
     if not user_id_record:
         return jsonify({"error": "User does not exist"}), 400
@@ -1258,9 +1268,9 @@ def update_profile_pic():
 
     # Update the user's profile picture URL
     try:
-        cursor.execute("UPDATE users SET profile_pic = ? WHERE user_id = ?", (profile_pic_url, user_id))
+        cursor.execute("UPDATE users SET profile_pic = %s WHERE user_id = %s", (profile_pic_url, user_id))
         conn.commit()
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
     
@@ -1280,15 +1290,15 @@ def get_profile_pic():
     if not username:
         return jsonify({"error": "Username parameter is missing"}), 400
 
-    cursor.execute("SELECT user_id FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id FROM users WHERE username =  %s", (username,))
     user_id_record = cursor.fetchone()
     if not user_id_record:
         return jsonify({"error": "User does not exist"}), 400
     user_id = user_id_record[0]
 
-    # Update the user's profile picture URL
+    # Update the user's profile picture
     try:
-        cursor.execute("SELECT profile_pic FROM users WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT profile_pic FROM users WHERE user_id =  %s", (user_id,))
         pic_record = cursor.fetchone()
         if pic_record:
             pic = pic_record[0]
@@ -1298,7 +1308,7 @@ def get_profile_pic():
                 return jsonify(None), 200  # Returning None when the profile picture is empty
         else:
             return jsonify({"message": "User does not have a profile picture"}), 200
-    except sqlite3.Error as e:
+    except mysql.connector.Error as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
     

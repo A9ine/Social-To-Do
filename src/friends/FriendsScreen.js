@@ -97,9 +97,9 @@ const FriendsScreen = ({ navigation }) => {
       }
   };
 
-  // const navigateToSettings = () => {
-  //   navigation.navigate('SettingScreen'); //navigating to SettingScreen
-  // }
+  const navigateToSettings = () => {
+    navigation.navigate('SettingScreen'); //navigating to SettingScreen
+  }
 
   const handleSignOut = async () => {
     try {
@@ -147,12 +147,12 @@ const FriendsScreen = ({ navigation }) => {
       <View style={styles.profileStats}>
         
         <Text style={styles.statItem}>Friends: {friends.length}</Text>
-        {/* <TouchableOpacity onPress={navigateToSettings}>
+        <TouchableOpacity onPress={navigateToSettings}>
           <Image
             style={styles.navIcon}
             source={require('../assets/settings.png')}
           />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => navigation.navigate('AddFriendScreen')}

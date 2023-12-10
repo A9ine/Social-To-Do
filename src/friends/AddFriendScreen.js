@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import axios from 'axios';
 import debounce from 'lodash.debounce'; // Install lodash.debounce to handle debouncing
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -75,6 +75,22 @@ const AddFriendScreen = ({ navigation }) => {
     );
   };
 
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={styles.userItemContainer}
+      onPress={() => confirmAddFriend(item.username)}>
+      {item.profile_pic ? (
+        <Image
+          source={{ uri: item.profile_pic }}
+          style={styles.profileImage} // Define this style in your stylesheet
+        />
+      ) : (
+        <View style={styles.avatar}></View>
+      )}
+      <Text style={styles.userItem}>{item.username}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -90,14 +106,21 @@ const AddFriendScreen = ({ navigation }) => {
           <TouchableOpacity 
             style={styles.userItemContainer}
             onPress={() => confirmAddFriend(item.username)}>
-            <View style={styles.avatar}></View>
+            {item.profile_pic ? (
+              <Image
+                source={{ uri: item.profile_pic }}
+                style={styles.profileImage} // Make sure this style is defined in your stylesheet
+              />
+            ) : (
+              <View style={styles.avatar}></View>
+            )}
             <Text style={styles.userItem}>{item.username}</Text>
           </TouchableOpacity>
         )}
       />
     </View>
   );
-};
+} 
 
 const styles = StyleSheet.create({
   container: {
@@ -139,6 +162,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#C4C4C4',
     marginRight: 10,
   },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  }
+  
 });
 
 export default AddFriendScreen;
