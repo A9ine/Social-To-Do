@@ -67,7 +67,7 @@ const AddFriendScreen = ({ navigation }) => {
   const confirmAddFriend = (friendUsername) => {
     Alert.alert(
       'Add Friend',
-      `${friendUsername} want to team up!!`,
+      `Team up with ${friendUsername}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Yes', onPress: () => handleAddFriend(friendUsername) }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, Alert, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Button, Alert, Text, StyleSheet, TouchableOpacity, ScrollView, Image, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import SocialPost from '../components/SocialPost';
@@ -8,63 +8,72 @@ import { useFocusEffect } from '@react-navigation/native';
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [posts, setPosts] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   
   const [pendingFriends, setPendingFriends] = useState([]);
 
   useFocusEffect(
     React.useCallback(() => {
-      const getUsernameAndFetchPosts = async () => {
-        try {
-          const storedUsername = await AsyncStorage.getItem('username');
-          if (storedUsername) {
-            setUsername(storedUsername);
-            const response = await axios.get(`http://127.0.0.1:2323/retrievePosts?username=${storedUsername}`);
-            if (response.status === 200) {
-              setPosts(response.data.posts);
-              console.log(response.data.posts.comments);
-            }
-          } else {
-            console.error('No username found');
-          }
-        } catch (e) {
-          console.error('Failed to load username or fetch posts', e);
-          Alert.alert('Error', 'Failed to load username or fetch posts');
-        }
-      };
       getUsernameAndFetchPosts();
-    }, [])
-
-    
-
-  );
-
-  useFocusEffect(
-    React.useCallback(() => {
-      const fetchPendingFriends = async () => {
-        try {
-          const username = await AsyncStorage.getItem('username');
-          if (username) {
-            const response = await axios.get(`http://127.0.0.1:2323/getPendingFriends`, {
-              params: { username }
-            });
-            console.log(response.data); // Log the response data
-            if (response.status === 200 && response.data.pending_friends) {
-              setPendingFriends(response.data.pending_friends);
-            } else {
-              setPendingFriends([]); 
-            }
-          } else {
-            console.error('No username found');
-          }
-        } catch (e) {
-          console.error('Failed to fetch pending friends', e);
-          Alert.alert('Error', 'Failed to fetch pending friends');
-          setPendingFriends([]); 
-        }
-      };
       fetchPendingFriends();
     }, [])
   );
+
+  const getUsernameAndFetchPosts = async () => {
+    try {
+      const storedUsername = await AsyncStorage.getItem('username');
+      if (storedUsername) {
+        setUsername(storedUsername);
+        const response = await axios.get(`http://127.0.0.1:2323/retrievePosts?username=${storedUsername}`);
+        if (response.status === 200) {
+          setPosts(response.data.posts);
+          console.log(response.data.posts.comments);
+        }
+      } else {
+        console.error('No username found');
+      }
+    } catch (e) {
+      console.error('Failed to load username or fetch posts', e);
+      Alert.alert('Error', 'Failed to load username or fetch posts');
+    }
+  };
+
+  const fetchPendingFriends = async () => {
+    try {
+      const username = await AsyncStorage.getItem('username');
+      if (username) {
+        const response = await axios.get(`http://127.0.0.1:2323/getPendingFriends`, {
+          params: { username }
+        });
+        console.log(response.data); // Log the response data
+        if (response.status === 200 && response.data.pending_friends) {
+          setPendingFriends(response.data.pending_friends);
+        } else {
+          setPendingFriends([]); 
+        }
+      } else {
+        console.error('No username found');
+      }
+    } catch (e) {
+      console.error('Failed to fetch pending friends', e);
+      Alert.alert('Error', 'Failed to fetch pending friends');
+      setPendingFriends([]); 
+    }
+  };
+
+  
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchPendingFriends();
+      await getUsernameAndFetchPosts();
+    } catch (error) {
+      console.error('Refresh action failed', error);
+    }
+    setRefreshing(false);
+  }, []);
   
 
   const handleSignOut = async () => {
@@ -204,7 +213,9 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       {/* Posts Container */}
-      <ScrollView style={styles.postsContainer}>
+      <ScrollView style={styles.postsContainer} refreshControl={
+    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+  }>
         {posts.map((post, index) => (
           <SocialPost
             key={post.post_id || index}

@@ -128,7 +128,7 @@ const TaskScreen = ({ navigation }) => {
           <View style={styles.emptyTasksContainer}>
             <Text style={[styles.emptyTasksText , {fontSize: 40}]}>🦦</Text>
             <Text style={styles.emptyTasksText}>Lazy bug!!!!</Text>
-            <Text style={[styles.emptyTasksText, {fontWeight: 'bold', color: '#6c5ce7'}]}>Time to team up with friends!</Text>
+            <Text style={[styles.emptyTasksText, {fontWeight: 'bold', color: '#6c5ce7'}]}>Tell your friend to stop being lazy!</Text>
           </View>
         );
       } else {
