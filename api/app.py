@@ -51,6 +51,9 @@ def register():
     if not first_name or not last_name or not email or not username or not password:
         return jsonify({"error": "All fields are required and must not be blank."}), 400
 
+    if '@' not in email or '.' not in email:
+        return jsonify({"error": "Invalid email format."}), 400
+
     try:
         cursor.execute("SELECT * FROM users WHERE username = %s OR email = %s", (username, email))
         existing_user = cursor.fetchone()
