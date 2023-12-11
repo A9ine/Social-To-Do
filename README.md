@@ -1,213 +1,47 @@
-# Setting Up Backend
+# Social-To-Do
 
-## Prerequisites
+<img src="./src/assets/logo_readme.png" alt="alt text" width="800"/>
 
-- Python (3.6 or higher is recommended)
-- Flask
-- SQLite
+## Description
+**Social-To-Do** is an innovative app designed to seamlessly blend productivity with social engagement. It offers a unique platform where users can not only manage their tasks efficiently but also connect with friends, share progress, and interact through a social feed.
 
-## Getting Started
+## Key Features
 
-1. **Install Dependencies**:
+- **Task Management**: Effortlessly create, modify, and track your personal tasks. Stay organized with a user-friendly interface.
+- **Social Interaction**: Engage with friends by creating your own posts, and interacting with others' through likes and comments. View tasks that match / are similar to your firends', so you guys can work on it together!
+- **Profile Customization**: Personalize your experience by updating your profile picture and personal information.
 
-    Install flask
-    ```
-    pip install flask
-    ```
-    or 
-    ```
-    pip3 install flask
-    ```
-3. **Setting Up the Database**:
-    Before running the application for the first time, ensure the SQLite database `social-to-do.sqlite` is set up is created. 
-    * Make sure you are in the api directory
-    ```
-    python3 database/db.py
-    ```
+## Technologies Used
 
-4. **Running the Application**:
-    With everything set up, run the application using:
-    ```
-    python3 app.py
-    ```
-    This will start the Flask server, and the API will be accessible at `http://127.0.0.1:2323/`.
+- React Native
+- Flask (Backend API)
 
-## API Endpoints
+## Setup and Installation
 
-Below are the details of the API endpoints including the URL, method, data parameters, and possible responses.
+To get the app running on your local machine, follow these steps:
 
-### Register User
+1. **Clone the Repository**
+```
+git clone https://github.com/A9ine/Social-To-Do.git
+cd Social-To-Do
+```
 
-- **URL**: `/register`
-- **Method**: `POST`
-- **Data Params**:
-  - `first_name`: First name of the user.
-  - `last_name`: Last name of the user.
-  - `email`: Email address of the user.
-  - `username`: Desired username.
-  - `password`: Password for the account.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "message": "User registered successfully" }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "All fields are required and must not be blank." }`
-  - **Code**: 409 CONFLICT
-  - **Content**: `{ "error": "Username or email already exists." }`
-  - **Code**: 500 INTERNAL SERVER ERROR
-  - **Content**: `{ "error": "Database error occurred." }`
+2. **Install Dependencies**
+```
+npm install
+```
 
-### User Login
+3. **Install Flask, backend dependencies and start the APIk**
+```
+pip3 install flask mysql-connector-python
+python3 api/app.py
+```
 
-- **URL**: `/login`
-- **Method**: `POST`
-- **Data Params**:
-  - `username_or_email`: Username or email address of the user.
-  - `password`: Password for the account.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "authenticated": true, "user_id": user_id, "username": username }` or `{ "authenticated": false }`
-- **Error Response**:
-  - **Code**: 500 INTERNAL SERVER ERROR
-  - **Content**: `{ "error": "Database error occurred." }`
+4. **Run the App**
 
-### Get Verification Code
+## Usage
 
-- **URL**: `/getVerification`
-- **Method**: `POST`
-- **Data Params**:
-  - `email`: Email address of the user to send the verification code.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "message": "Verification email sent successfully" }`
-- **Error Response**:
-  - **Code**: 500 INTERNAL SERVER ERROR
-  - **Content**: `{ "error": "Database error occurred." }`
-
-### Change Password
-
-- **URL**: `/changePassword`
-- **Method**: `POST`
-- **Data Params**:
-  - `email`: Email address of the user.
-  - `new_password`: New password to set for the user.
-  - `verification_code`: Verification code sent to the user's email.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "success": "Password updated successfully" }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "Email, new password, and verification code are required." }`
-  - **Code**: 401 UNAUTHORIZED
-  - **Content**: `{ "error": "Invalid email or verification code." }`
-  - **Code**: 500 INTERNAL SERVER ERROR
-  - **Content**: `{ "error": "Database error occurred." }`
-  
-### Add Friend
-
-- **URL**: `/addFriend`
-- **Method**: `POST`
-- **Data Params**:
-  - `user1`: The username of the first user.
-  - `user2`: The username of the second user.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "message": "Friendship added successfully" }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "2 users are required." }`
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "One or more of the users do not exist" }`
-  - **Code**: 409 CONFLICT
-  - **Content**: `{ "error": "Friendship Already Exists" }`
-
-### Delete Friend
-
-- **URL**: `/deleteFriend`
-- **Method**: `POST`
-- **Data Params**:
-  - `user1`: The username of the first user.
-  - `user2`: The username of the second user.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "message": "Friendship deleted successfully" }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "2 users are required." }`
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "One or more of the users do not exist" }`
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "Friendship Does Not Exist" }`
-
-### Get Friends
-
-- **URL**: `/getFriends`
-- **Method**: `GET`
-- **URL Params**:
-  - `username`: The username of the user whose friends list is to be retrieved.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "friends": [ { "friend_id": 12, "friend_username": "john_doe" }, ... ] }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "User Does Not Exist" }`
-
-### Add Task
-
-- **URL**: `/addTask`
-- **Method**: `POST`
-- **Data Params**:
-  - `username`: The username of the user to whom the task belongs.
-  - `task`: The description of the task.
-  - `due_date`: The due date for the task.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "message": "Task added successfully" }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "All fields need to be filled" }`
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "User Does Not Exist" }`
-
-### Mark Task as Done
-
-- **URL**: `/markTaskAsDone`
-- **Method**: `POST`
-- **Data Params**:
-  - `task_id`: The ID of the task to be marked as done.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "message": "Task marked as done successfully" }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "Task Does Not Exist" }`
-
-### Get All Tasks
-
-- **URL**: `/getAllTasks`
-- **Method**: `GET`
-- **URL Params**:
-  - `username`: The username of the user whose tasks are to be retrieved.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "tasks": [ { "task_id": 10, "task_description": "Finish report", ... }, ... ] }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "User Does Not Exist" }`
-
-### Send Chat
-
-- **URL**: `/sendChat`
-- **Method**: `POST`
-- **Data Params**:
-  - `username`: The username of the user sending the message.
-  - `group_id`: The ID of the group to which the message is sent.
-  - `message`: The content of the chat message.
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**: `{ "message": "Chat Sent Successfully" }`
-- **Error Response**:
-  - **Code**: 400 BAD REQUEST
-  - **Content**: `{ "error": "Missing Data" }`
-  - **Code**: 400 BAD REQUEST
-  - **
+- **Log in or Register**: Start by logging in or registering a new account.
+- **Create a Task**: Navigate to the 'Tasks' screen to add and manage your tasks.
+- **Social Feed**: Stay connected! View and interact with friends' posts on the home screen.
+- **Update Profile**: Personalize your profile by changing your profile picture and email in the settings.
