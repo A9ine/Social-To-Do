@@ -16,6 +16,7 @@ import NotificationsScreen from './src/friends/NotificationScreen';
 import StartChatScreen from './src/chatroom/StartChatScreen';
 import ChatScreen from './src/chatroom/ChatScreen';
 import CommentScreen from './src/screens/CommentScreen';
+import MatchTasksScreen from './src/screens/MatchedTasksScreen';
 
 const Stack = createStackNavigator();
 
@@ -38,6 +39,7 @@ export default function App() {
         <Stack.Screen name="StartChatScreen" component={StartChatScreen}/>
         <Stack.Screen name="ChatScreen" component={ChatScreen}/>
         <Stack.Screen name='CommentScreen' component={CommentScreen} options={{ title: 'Comments' }}  />
+        <Stack.Screen name='MatchedTasksScreen' component={MatchTasksScreen} options={{ title: 'Matched Tasks' }}  />
       </Stack.Navigator>
     </NavigationContainer>
   );
