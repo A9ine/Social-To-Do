@@ -144,9 +144,8 @@ const FriendsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.profileStats}>
-        
-        <Text style={styles.statItem}>Friends: {friends.length}</Text>
+      <View style={styles.topNavBar}>
+        <Text style={styles.navText}>Friends: {friends.length}</Text>
         <TouchableOpacity onPress={navigateToSettings}>
           <Image
             style={styles.navIcon}
@@ -231,7 +230,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3e9ff', // Very light purple
   },
 
-
+  topNavBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#FFFFFF', // Or any other color for the top nav bar
+    borderBottomWidth: 1,
+    borderBottomColor: '#EFEFEF',
+  },
+  navText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  navIcon: {
+    width: 25,
+    height: 25,
+    resizeMode: 'contain',
+  },
+  addButton: {
+    backgroundColor: '#a29bfe',
+    padding: 10,
+    borderRadius: 10,
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
   userItemContainer: {
     flexDirection: 'column',
     alignItems: 'center', // Center items horizontally
