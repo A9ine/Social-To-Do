@@ -156,7 +156,11 @@ const TaskScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
     <View style={styles.headerContainer}>
-      <Text style={styles.helloText}>{firstName ? `Hello ${firstName}` : "Hello"}</Text>
+    {usernameParam ? (
+      <Text style={styles.helloText}>{usernameParam}'s Tasks</Text>
+    ) : (
+      firstName && <Text style={styles.helloText}>Hello {firstName}</Text>
+    )}
     </View>
     <Text style={styles.dateText}>{formatDate()}</Text>
       <View style={[styles.modal, {borderWidth: 1, borderColor: '#7a42f4', backgroundColor: '#f3e9ff'}]}>
@@ -167,12 +171,12 @@ const TaskScreen = ({ navigation }) => {
           onChangeText={setSearchQuery}
         />
       </View>
-      <TouchableOpacity 
+      {!usernameParam && <TouchableOpacity 
         style={styles.matchTasksButton} 
         onPress={() => navigation.navigate('MatchedTasksScreen')}
       >
         <Text style={styles.matchTasksButtonText}>View Matching Tasks</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>}
       <Text style={styles.upcoming}>Upcoming</Text>
       {renderContent()}
       {!usernameParam && ( // Only show the Add New Task button if a username was not passed in
