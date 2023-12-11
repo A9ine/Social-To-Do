@@ -298,8 +298,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   navIcon: {
-    width: 25, // Adjusted for optimal size
-    height: 25, // Adjusted for optimal size
+    width: 25,
+    height: 25,
+    marginRight: 10, // Add margin to the right of each icon
   },
   taskNavIcon: {
     width: 50, 
