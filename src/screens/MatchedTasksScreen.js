@@ -94,47 +94,52 @@ const MatchTasksScreen = ({ route }) => {
     container: {
       flex: 1,
       padding: 20,
-      backgroundColor: '#fff',
+      backgroundColor: '#f3e9ff', // Light purple
     },
     taskItem: {
-      backgroundColor: '#f9f9f9',
+      backgroundColor: '#eaddff', // Lighter shade of purple
       padding: 20,
       marginVertical: 8,
       borderRadius: 5,
+      borderColor: '#d1b3ff', // Slightly darker purple for border
+      borderWidth: 1,
     },
     taskTitle: {
       fontSize: 18,
       fontWeight: 'bold',
+      color: '#5e35b1', // Darker purple for text
     },
     emptyContainer: {
       flex: 1,
-      justifyContent: 'center', 
+      justifyContent: 'center',
       alignItems: 'center',
       padding: 20,
     },
     emptyText: {
       fontSize: 18,
       textAlign: 'center',
-      color: 'grey',
+      color: '#a29bfe', // Softer purple
     },
     sectionHeader: {
       fontWeight: 'bold',
       fontSize: 20,
-      backgroundColor: '#eee',
+      backgroundColor: '#b39ddb', // Medium purple
       padding: 10,
+      color: '#fff', // White text for contrast
     },
     taskHeader: {
       fontWeight: 'bold',
       fontSize: 18,
-      marginBottom: 5, 
+      marginBottom: 5,
+      color: '#5e35b1', // Darker purple for text
     },
     description: {
       fontSize: 16,
-      fontWeight: 'bold',
+      color: '#7e57c2', // Slightly lighter purple
     },
     dueDate: {
       fontSize: 16,
-      color: 'grey', 
+      color: '#9575cd', // Soft purple
     },
   });
 

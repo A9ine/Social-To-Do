@@ -155,14 +155,24 @@ const TaskScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-    <View style={styles.headerContainer}>
-    {usernameParam ? (
-      <Text style={styles.helloText}>{usernameParam}'s Tasks</Text>
-    ) : (
-      firstName && <Text style={styles.helloText}>Hello {firstName}</Text>
-    )}
-    </View>
-    <Text style={styles.dateText}>{formatDate()}</Text>
+      <View style={styles.headerSection}>
+        {usernameParam ? (
+          <Text style={styles.helloText}>{usernameParam}'s Tasks</Text>
+        ) : (
+          <View style={styles.helloAndMatchContainer}>
+            <View>
+              {firstName && <Text style={styles.helloText}>Hello {firstName}</Text>}
+              <Text style={styles.dateText}>{formatDate()}</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.matchTasksButton} 
+              onPress={() => navigation.navigate('MatchedTasksScreen')}
+            >
+              <Text style={styles.matchTasksButtonText}>Matching Tasks</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
       <View style={[styles.modal, {borderWidth: 1, borderColor: '#7a42f4', backgroundColor: '#f3e9ff'}]}>
         <TextInput
           style={styles.searchInput}
@@ -171,12 +181,6 @@ const TaskScreen = ({ navigation }) => {
           onChangeText={setSearchQuery}
         />
       </View>
-      {!usernameParam && <TouchableOpacity 
-        style={styles.matchTasksButton} 
-        onPress={() => navigation.navigate('MatchedTasksScreen')}
-      >
-        <Text style={styles.matchTasksButtonText}>View Matching Tasks</Text>
-      </TouchableOpacity>}
       <Text style={styles.upcoming}>Upcoming</Text>
       {renderContent()}
       {!usernameParam && ( // Only show the Add New Task button if a username was not passed in
@@ -194,6 +198,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9EFFF', 
+  },
+
+  headerSection: {
+    marginHorizontal: 15,
+    marginTop: 10,
+  },
+  helloAndMatchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingight: 10,
+  },
+  matchTasksButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    backgroundColor: '#6c5ce7',
+  },
+  matchTasksButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   helloText: {
     fontSize: 25,
@@ -310,10 +335,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
   }, 
   matchTasksButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingVertical: 20,
+    paddingHorizontal: 8,
     borderRadius: 5,
     backgroundColor: '#6c5ce7',
+    paddingLeft: 10,
   },
   matchTasksButtonText: {
     color: 'white',

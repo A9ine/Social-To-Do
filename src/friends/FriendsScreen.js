@@ -153,12 +153,6 @@ const FriendsScreen = ({ navigation }) => {
         >
           <Text style={styles.addButtonText}>Add Friend</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={navigateToSettings}>
-          <Image
-            style={styles.navIcon}
-            source={require('../assets/settings.png')}
-          />
-        </TouchableOpacity>
       </View>
       
       <FlatList

@@ -194,16 +194,24 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Top Navigation Bar */}
       <View style={styles.topNavBar}>
-        <TouchableOpacity onPress={navigateToNotifications}>
-          {/* Conditional rendering for notification sign */}
-          {pendingFriends.length > 0 && (
-            <View style={styles.notificationSign}></View>
-          )}
-          <Image
-            style={styles.navIcon}
-            source={require('../assets/notification.png')}
-          />
-        </TouchableOpacity>
+        <View style={styles.iconGroup}>
+          <TouchableOpacity onPress={navigateToNotifications}>
+            {/* Conditional rendering for notification sign */}
+            {pendingFriends.length > 0 && (
+              <View style={styles.notificationSign}></View>
+            )}
+            <Image
+              style={styles.navIcon}
+              source={require('../assets/notification.png')}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={navigateToSettings}>
+            <Image
+              style={styles.navIcon}
+              source={require('../assets/settings.png')}
+            />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.navTitle}>Home</Text>
         <TouchableOpacity onPress={navigateToChat}>
           <Image
@@ -374,6 +382,10 @@ const styles = StyleSheet.create({
     top: 9,
     left: 13,
     zIndex: 1,
+  },
+  iconGroup: {
+    flexDirection: 'row', // This will lay out the icons horizontally
+    alignItems: 'center', // Aligns icons vertically in the middle
   },
 });
 
