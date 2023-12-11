@@ -144,19 +144,20 @@ const FriendsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Top Navigation Bar */}
       <View style={styles.topNavBar}>
         <Text style={styles.navText}>Friends: {friends.length}</Text>
-        <TouchableOpacity onPress={navigateToSettings}>
-          <Image
-            style={styles.navIcon}
-            source={require('../assets/settings.png')}
-          />
-        </TouchableOpacity>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => navigation.navigate('AddFriendScreen')}
         >
           <Text style={styles.addButtonText}>Add Friend</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={navigateToSettings}>
+          <Image
+            style={styles.navIcon}
+            source={require('../assets/settings.png')}
+          />
         </TouchableOpacity>
       </View>
       
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#FFFFFF', // Or any other color for the top nav bar
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#EFEFEF',
   },
