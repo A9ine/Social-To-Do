@@ -1,34 +1,39 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   const [selectedId, setSelectedId] = useState(null);
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchChats = async () => {
-        const storedUsername = await AsyncStorage.getItem('username');
-        if (!storedUsername) {
-          console.error('No username found');
-          return;
-        }
-        try {
-          const response = await axios.get(`http://127.0.0.1:2323/getUserChats?username=${storedUsername}`);
-          if (response.status === 200) {
-            setChats(response.data.groups);
-          }
-        } catch (e) {
-          console.error('Failed to fetch chats', e);
-        }
-      };
-      fetchChats();
+      fetchData();
     }, [])
   );
+
+  const fetchData = async () => {
+    setRefreshing(true);
+    const storedUsername = await AsyncStorage.getItem('username');
+    if (!storedUsername) {
+      console.error('No username found');
+      setRefreshing(false);
+      return;
+    }
+    try {
+      const response = await axios.get(`http://127.0.0.1:2323/getUserChats?username=${storedUsername}`);
+      if (response.status === 200) {
+        setChats(response.data.groups);
+      }
+    } catch (e) {
+      console.error('Failed to fetch chats', e);
+    }
+    setRefreshing(false);
+  };
 
   const handlePress = (id) => {
     setSelectedId(id);
@@ -45,7 +50,6 @@ const ChatListScreen = () => {
       >
         <View style={styles.chatInfo}>
           <Text style={styles.chatName}>{item.group_name}</Text>
-          {/* Example: Add last message snippet or timestamp */}
           <Text style={styles.chatSnippet}>{item.last_message}</Text>
         </View>
         <Text style={styles.chatTimestamp}>{item.last_message_time}</Text>
@@ -60,6 +64,12 @@ const ChatListScreen = () => {
         renderItem={renderChatItem}
         keyExtractor={(item, index) => 'chat-' + index}
         extraData={selectedId}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={fetchData}
+          />
+        }
       />
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('StartChatScreen')}>
