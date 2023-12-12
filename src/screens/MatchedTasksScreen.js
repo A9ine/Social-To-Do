@@ -28,7 +28,7 @@ const MatchTasksScreen = ({ route }) => {
       matchCount += 1; // Increment the counter for each "Your Task" found
       // Start a new section with "Your Task"
       currentTask = {
-        title: 'Match ' + matchCount, // Use matchCount as part of the title
+        title: 'Match ' + matchCount + ": " + task['Your task']['category'], // Use matchCount as part of the title
         data: [{ ...task['Your task'], isYourTask: true, title: 'Your Task' }],
       };
       sections.push(currentTask);
