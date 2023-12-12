@@ -20,6 +20,30 @@ const HomeScreen = ({ navigation }) => {
     }, [])
   );
 
+  useEffect(() => {
+    const getProfilePicture = async () => {
+      try {
+        const username = await AsyncStorage.getItem('username');
+        const response = await axios.get(`http://127.0.0.1:2323/getProfilePicture`, {
+          params: { username }
+        });
+
+        if (response.status === 200) {
+          const profilePicUrl = response.data;
+          await AsyncStorage.setItem('profilePic', profilePicUrl);
+        } else {
+          console.error('Failed to fetch profile picture:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
+      }
+    };
+
+    getProfilePicture();
+  }, []); 
+  
+
+
   const getUsernameAndFetchPosts = async () => {
     try {
       const storedUsername = await AsyncStorage.getItem('username');
