@@ -66,7 +66,7 @@ export default function Login({ navigation }) {
       <Logo />
       <Header>Welcome back.</Header>
       <TextInput
-        label="Email"
+        label="Email or Username"
         returnKeyType="next"
         value={email.value}
         onChangeText={(text) => setEmail({ value: text, error: '' })}
