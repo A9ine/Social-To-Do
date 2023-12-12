@@ -24,23 +24,32 @@ const HomeScreen = ({ navigation }) => {
     const getProfilePicture = async () => {
       try {
         const username = await AsyncStorage.getItem('username');
+        if (!username) {
+          console.error('No username found in AsyncStorage');
+          return; 
+        }
+  
         const response = await axios.get(`http://127.0.0.1:2323/getProfilePicture`, {
           params: { username }
         });
-
-        if (response.status === 200) {
+  
+        if (response.status === 200 && response.data) {
           const profilePicUrl = response.data;
-          await AsyncStorage.setItem('profilePic', profilePicUrl);
+  
+          if (profilePicUrl !== null) {
+            await AsyncStorage.setItem('profilePic', profilePicUrl);
+          }
         } else {
-          console.error('Failed to fetch profile picture:', response.status);
+          return
         }
       } catch (error) {
         console.error('Error fetching profile picture:', error);
       }
     };
-
+  
     getProfilePicture();
   }, []); 
+  
   
 
 
