@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Image } from 'react-native';
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -62,12 +62,35 @@ const ChatScreen = () => {
     }
   };
 
+  const formatDateWithoutTimezone = (dateString) => {
+    const date = new Date(dateString);
+    // Format the date as you wish
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true, // you can set this to false if you want 24-hour format
+      timeZone: 'UTC' // This will force it to not consider timezone offsets
+    });
+  };
+
   const renderMessage = ({ item }) => (
     <View style={styles.messageItem}>
-      <Text style={styles.messageText}>{item.usernames}: {item.message}</Text>
-      <Text style={styles.messageDate}>{item.sent_at}</Text>
+      {item.profile_pic ? (
+        <Image
+          source={{ uri: item.profile_pic }}
+          style={styles.profileImage}
+        />
+      ) : (
+        <View style={styles.avatar}></View> // Display a placeholder if no profile picture
+      )}
+      <View style={styles.messageContent}>
+        <Text style={styles.messageText}>{item.username}: {item.message}</Text>
+        <Text style={styles.messageDate}>{formatDateWithoutTimezone(item.sent_at)}</Text>
+      </View>
     </View>
-    
   );
 
   return (
@@ -114,12 +137,22 @@ const styles = StyleSheet.create({
     borderRadius: 20, // Rounded corners
   },
   messageItem: {
-    backgroundColor: '#F0F0F0', // Light grey background for message bubbles
+    flexDirection: 'row',
+    backgroundColor: '#F0F0F0',
     padding: 10,
-    borderRadius: 15, // Rounded corners for message bubbles
+    borderRadius: 15,
     marginVertical: 5,
-    maxWidth: '70%', // Limit the width of message bubble
-    alignSelf: 'flex-start', // Align to start; change to 'flex-end' for user's messages
+    maxWidth: '70%',
+    alignSelf: 'flex-start',
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  messageContent: {
+    flex: 1, // Take up remaining space
   },
   messageText: {
     fontSize: 16,
