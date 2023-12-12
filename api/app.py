@@ -516,11 +516,13 @@ def matchTasks():
             friend_tasks = get_incompleted_tasks(friend_id)
             for friend_task in friend_tasks:
                 if user_task[2] == friend_task[2]:
+                    cursor.execute("SELECT category_name FROM task_categories WHERE category_id = %s", (user_task[2],))
+                    category_name = cursor.fetchone()
                     user_task_reformat = ({
                         f"Your task": {
                             "task_id": user_task[0],
                             "description": user_task[3],
-                            "category": user_task[2],
+                            "category": category_name[0],
                             "due date": user_task[6]
                         }
                     })
@@ -530,7 +532,7 @@ def matchTasks():
                         f"{friend_username}'s task": {
                             "task_id": friend_task[0],
                             "description": friend_task[3],
-                            "category": friend_task[2],
+                            "category": category_name[0],
                             "due date": friend_task[6]
                         }
                     })
