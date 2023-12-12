@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -8,12 +8,6 @@ const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
   const navigation = useNavigation();
   const [selectedId, setSelectedId] = useState(null);
-
-  const handlePress = (id) => {
-    setSelectedId(id); // Set the selected ID
-    navigation.navigate('ChatScreen', { groupId: id });
-  };
-
 
   useFocusEffect(
     React.useCallback(() => {
@@ -36,6 +30,11 @@ const ChatListScreen = () => {
     }, [])
   );
 
+  const handlePress = (id) => {
+    setSelectedId(id);
+    navigation.navigate('ChatScreen', { groupId: id });
+  };
+
   const renderChatItem = ({ item }) => {
     const isSelected = item.group_id === selectedId;
 
@@ -44,13 +43,15 @@ const ChatListScreen = () => {
         onPress={() => handlePress(item.group_id)}
         style={[styles.chatItem, isSelected && styles.selectedChatItem]}
       >
-        <Text style={styles.chatName}>{item.group_name}</Text>
-        {/* ... other chat details */}
+        <View style={styles.chatInfo}>
+          <Text style={styles.chatName}>{item.group_name}</Text>
+          {/* Example: Add last message snippet or timestamp */}
+          <Text style={styles.chatSnippet}>{item.last_message}</Text>
+        </View>
+        <Text style={styles.chatTimestamp}>{item.last_message_time}</Text>
       </TouchableOpacity>
     );
   };
-
-
 
   return (
     <View style={styles.container}>
@@ -58,10 +59,16 @@ const ChatListScreen = () => {
         data={chats}
         renderItem={renderChatItem}
         keyExtractor={(item, index) => 'chat-' + index}
-        extraData={selectedId} // Pass selectedId to ensure re-rendering when it changes
+        extraData={selectedId}
       />
-      <Button title="Start a new chat" onPress={() => navigation.navigate('StartChatScreen')} />
-      <Button title="Back to Home" onPress={() => navigation.goBack()} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('StartChatScreen')}>
+          <Text style={styles.buttonText}>Start a New Chat</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+          <Text style={styles.buttonText}>Back to Home</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -70,15 +77,70 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    backgroundColor: '#F3F3F7',
   },
   chatItem: {
-    padding: 10,
+    padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#DDD',
+    backgroundColor: '#FFF',
+    borderRadius: 10,
     marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 3,
+    paddingVertical: 10,
   },
   selectedChatItem: {
-    backgroundColor: '#e1e1e1', // Change background color for selected item
+    backgroundColor: '#EDE7F6',
+  },
+  chatName: {
+    fontSize: 20,
+    color: '#6c5ce7',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Adjusted for individual button widths
+    marginTop: 20,
+    paddingHorizontal: 10,
+  },
+  button: {
+    backgroundColor: '#8A2BE2', // Purple color
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25, // More rounded corners
+    elevation: 2,
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    shadowColor: '#000',
+    shadowOffset: { height: 1, width: 0 },
+    marginHorizontal: 5, // Space between buttons
+    },
+    buttonText: {
+      color: 'white',
+      fontWeight: 'bold',
+      textAlign: 'center', // Ensure text is centered
+    },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: 20,
+    paddingHorizontal: 10, // Added padding to container for spacing from screen edges
+  },
+  button: {
+    flex: 1, // Each button will take equal space
+    backgroundColor: '#8A2BE2',
+    paddingVertical: 10,
+    paddingHorizontal: 10, // Adjust padding to maintain button shape
+    borderRadius: 25,
+    elevation: 2,
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    shadowColor: '#000',
+    shadowOffset: { height: 1, width: 0 },
+    marginHorizontal: 5, // Maintain space between buttons
   },
 });
 

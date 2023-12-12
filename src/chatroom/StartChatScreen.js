@@ -83,6 +83,7 @@ const StartChatScreen = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Group Name"
+        placeholderTextColor="#666" // Placeholder text color
         value={group_name}
         onChangeText={setGroupName}
       />
@@ -90,12 +91,11 @@ const StartChatScreen = ({ navigation }) => {
         data={friends}
         renderItem={renderFriend}
         keyExtractor={(item) => item.friend_id.toString()}
-        extraData={selectedFriends} // Add this line to ensure the FlatList updates when selectedFriends changes
+        extraData={selectedFriends}
       />
-      <Button
-        title="Start Chat"
-        onPress={handleStartChat}
-      />
+      <TouchableOpacity style={styles.button} onPress={handleStartChat}>
+        <Text style={styles.buttonText}>Start Chat</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -103,27 +103,55 @@ const StartChatScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20, // Increased padding for better spacing
+    backgroundColor: '#F3F3F7', // Consistent background color
   },
   input: {
     borderWidth: 1,
-    borderColor: 'gray',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-  },
-  selectedItem: {
-    backgroundColor: '#e0e0e0', // Change the color to indicate selection
-  },
-  friendName: {
-    color: 'black',
+    borderColor: '#6c5ce7', // Purple border color
+    padding: 15, // Increased padding for a larger input area
+    marginBottom: 20, // Increased margin for more space between elements
+    borderRadius: 8, // Rounded corners
+    fontSize: 16, // Larger font size
+    color: '#333', // Darker font color
   },
   friendItem: {
-    padding: 10,
+    padding: 15, // Increased padding for a larger touch area
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#DDD',
+    backgroundColor: '#FFF', // White background for each item
+    borderRadius: 8, // Rounded corners
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 2,
+  },
+  selectedItem: {
+    backgroundColor: '#EDE7F6', // Light purple to indicate selection
+  },
+  friendName: {
+    color: '#333', // Darker font color
+    fontSize: 16, // Larger font size
+  },
+  button: {
+    backgroundColor: '#8A2BE2', // Purple button
+    padding: 15, // Increased padding for a larger button
+    borderRadius: 25, // Rounded corners
+    alignItems: 'center', // Center text horizontally
+    marginTop: 20, // Space above the button
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  buttonText: {
+    color: 'white', // White text color
+    fontWeight: 'bold', // Bold text
+    fontSize: 18, // Larger font size
   },
 });
 
 export default StartChatScreen;
-
