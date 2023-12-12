@@ -909,7 +909,7 @@ def retrievePosts():
         FROM post_comments c
         JOIN users u ON c.user_id = u.user_id
         WHERE c.post_id = %s
-        ORDER BY c.created_at DESC
+        ORDER BY c.created_at ASC
         """, (post[0],))
         
         comments = cursor.fetchall()
