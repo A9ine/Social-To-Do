@@ -1158,11 +1158,6 @@ def comment_on_post():
     post_id = data.get('post_id')
     username = data.get('username')
     comment = data.get('comment')
-
-    print(post_id)
-    print(username)
-    print(comment)
-
     # Convert username to user_id
     cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
     user_id_record = cursor.fetchone()
@@ -1319,6 +1314,28 @@ def get_profile_pic():
     # Close the database connection
     cursor.close()
     conn.close()
+
+@app.route('/deleteTask', methods=['POST'])
+def deleteTask():
+    conn = db_connection()
+    cursor = conn.cursor()
+    data = request.get_json()
+
+    task_id = data.get('task_id')
+
+    if not task_id:
+        return jsonify({"error": "Task ID is required"}), 400
+
+    cursor.execute("SELECT * FROM tasks WHERE task_id = %s", (task_id,))
+    task = cursor.fetchone()
+
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+
+    cursor.execute("DELETE FROM tasks WHERE task_id = %s", (task_id,))
+    conn.commit()
+
+    return jsonify({"message": "Task deleted successfully"}), 200
 
 
 
