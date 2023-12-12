@@ -29,7 +29,6 @@ const AddFriendScreen = ({ navigation }) => {
         }
       } catch (error) {
         console.error('Search error:', error);
-        // Optionally handle the error by setting state or alerting the user
       }
     } else {
       setSearchResults([]);

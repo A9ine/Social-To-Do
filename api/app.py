@@ -709,35 +709,33 @@ def getChat():
     
     if not group_id:
         return jsonify({"error": "group_id Does Not Exist"}), 400
-    
+
+    # Retrieve messages and user_ids
     cursor.execute("SELECT user_id, message, sent_at FROM chat_messages WHERE group_id = %s ORDER BY sent_at ASC", (group_id,))
     messages = cursor.fetchall()
 
-    usernames = []
+    messages_list = []
     for message in messages:
         user_id = message[0]
-        cursor.execute("SELECT username FROM users WHERE user_id = %s",(user_id,))
-        user_id_record = cursor.fetchone()
-        if not user_id_record:
+
+        # Retrieve username and profile picture for each user_id
+        cursor.execute("SELECT username, profile_pic FROM users WHERE user_id = %s", (user_id,))
+        user_record = cursor.fetchone()
+
+        if not user_record:
             return jsonify({"error": "User Does Not Exist"}), 400
-        username = user_id_record[0]
-        usernames.append(username)
-    
-    
 
-    messages_list = [
-        {
-            'user_id' : message[0],
-            'message' : message[1],
-            'sent_at' : message[2]
-        }
-        for message in messages
-    ]
-
-    for i in range(len(messages_list)):
-        messages_list[i]['usernames'] = usernames[i]
+        # Append each message with its corresponding user info
+        messages_list.append({
+            'user_id': user_id,
+            'username': user_record[0],
+            'profile_pic': user_record[1],
+            'message': message[1],
+            'sent_at': message[2]
+        })
 
     return jsonify({"messages": messages_list}), 200
+
 
 
 # Start groupchat
