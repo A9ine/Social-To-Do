@@ -879,7 +879,7 @@ def retrievePosts():
     user_id = user_id_record[0]
 
     cursor.execute("""
-    SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username, p.location, u.profile_pic
+    SELECT DISTINCT p.post_id, p.content, p.picture, p.created_at, u.username, p.location, u.profile_pic, p.created_at
     FROM posts p
     JOIN users u ON p.user_id = u.user_id
     LEFT JOIN friends f ON ((p.user_id = f.friend_id AND f.user_id = %s) OR (p.user_id = f.user_id AND f.friend_id = %s))
@@ -930,7 +930,8 @@ def retrievePosts():
             'like_count': like_count,  # Add like count here
             'comments': comments_list,
             'location': post[5],
-            'profile_pic': post[6]
+            'profile_pic': post[6],
+            'created_at': post[7]
         })
 
     return jsonify({"posts": posts_list}), 200

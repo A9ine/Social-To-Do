@@ -163,6 +163,13 @@ const styles = StyleSheet.create({
     color: 'gray',
     marginTop: 5, // Space between message and date
   },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#C4C4C4',
+    marginRight: 10,
+  },
 });
 
 export default ChatScreen;
