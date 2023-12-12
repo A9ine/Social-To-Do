@@ -67,6 +67,7 @@ const ChatScreen = () => {
       <Text style={styles.messageText}>{item.usernames}: {item.message}</Text>
       <Text style={styles.messageDate}>{item.sent_at}</Text>
     </View>
+    
   );
 
   return (
@@ -75,6 +76,7 @@ const ChatScreen = () => {
         data={messages}
         renderItem={renderMessage}
         keyExtractor={(item, index) => 'message-' + index}
+        
       />
       <View style={styles.inputContainer}>
         <TextInput
@@ -85,6 +87,7 @@ const ChatScreen = () => {
         />
         <Button title="Send" onPress={handleSendMessage} />
       </View>
+      
     </View>
   );
 };
@@ -92,32 +95,40 @@ const ChatScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    backgroundColor: '#F3F3F7', // Consistent background color
   },
   inputContainer: {
     flexDirection: 'row',
+    backgroundColor: '#FFFFFF', // White background for input area
     padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#EFEFEF', // Light border for separation
   },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: '#D3D3D3', // Light grey border
+    backgroundColor: '#FFFFFF', // White background for input field
     padding: 10,
     marginRight: 10,
-    borderRadius: 5,
+    borderRadius: 20, // Rounded corners
   },
   messageItem: {
+    backgroundColor: '#F0F0F0', // Light grey background for message bubbles
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    marginBottom: 10,
+    borderRadius: 15, // Rounded corners for message bubbles
+    marginVertical: 5,
+    maxWidth: '70%', // Limit the width of message bubble
+    alignSelf: 'flex-start', // Align to start; change to 'flex-end' for user's messages
   },
   messageText: {
     fontSize: 16,
+    color: '#000', // Black color for text
   },
   messageDate: {
     fontSize: 12,
     color: 'gray',
+    marginTop: 5, // Space between message and date
   },
 });
 
