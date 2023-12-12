@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count, location, profilePic }) => {
+const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, onCommentPress, like_count, location, profilePic, time }) => {
   const likeIcon = liked ? require('../assets/liked_like_icon.png') : require('../assets/unliked_like_icon.png');
   const likeIconStyle = liked ? styles.likedIcon : styles.actionIcon;
   const commentIcon = require('../assets/comment.png');
@@ -19,12 +19,25 @@ const SocialPost = ({ username, pictureUrl, text, liked, comments, onLikePress, 
   const renderLocation = () => {
     if (location) {
       return (
-        <Text style={styles.location}>
-          {location}
-        </Text>
+        <View style={styles.locationContainer}>
+          <Text style={styles.location}>{location} • </Text>
+          <Text style={styles.time}>{formatDateWithoutTimezone(time)}</Text>
+        </View>
       );
     }
     return null;
+  };
+  const formatDateWithoutTimezone = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true, // you can set this to false if you want 24-hour format
+      timeZone: 'UTC' // This will force it to not consider timezone offsets
+    });
   };
 
 
@@ -97,8 +110,7 @@ const styles = StyleSheet.create({
 
   location: {
     fontSize: 13,
-    marginLeft: 20,
-    right: 20
+
   },
 
   image: {
@@ -162,7 +174,14 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginRight: 10,
-  }
+  },
+  time: {
+    color: 'grey', 
+  },
+  locationContainer: {
+    flexDirection: 'row', // To keep the text in one line
+    alignItems: 'center', // To align text vertically
+  },
 });
 
 export default SocialPost;

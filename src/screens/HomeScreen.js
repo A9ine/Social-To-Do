@@ -237,6 +237,7 @@ const HomeScreen = ({ navigation }) => {
             onCommentPress={() => handleCommentPost(post.post_id, post.comments)}
             location = {post.location}
             profilePic = {post.profile_pic}
+            time = {post.created_at}
           />
         ))}
       </ScrollView>
