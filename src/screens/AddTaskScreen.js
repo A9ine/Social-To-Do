@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 5,
     paddingTop: 40,
-    backgroundColor: 'white',
+    backgroundColor: '#F9EFFF',
   },
   
   title: {
@@ -284,3 +284,7 @@ const styles = StyleSheet.create({
 });
 
 export default AddTaskScreen;
+
+
+//I want to change the backgroud image to white instead of light purple idk why i cant change that
+
