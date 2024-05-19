@@ -254,12 +254,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  modal: { 
+  modal: { eeeeeee
     marginBottom: 20,
     marginHorizontal: 10,
     backgroundColor: "white",
     borderRadius: 20,
-    shadowColor: "#000",
+    shadowColor: "white",
     shadowOpacity: 0,
     shadowRadius: 4,
     elevation: 5,
