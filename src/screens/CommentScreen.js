@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9EFFF'
 
   },
+  
   avatar: {
     width: 50,
     height: 50,

@@ -150,7 +150,7 @@ const AddTaskScreen = ({ route, navigation }) => {
           <Text style={styles.buttonText}>Set Date</Text>
           {showDatePicker && mode === 'date' && (
           <DateTimePicker
-            testID="dateTimePicker"
+            testID="dateTimePicker"      
             value={dueDate}
             mode="date"
             is24Hour={true}
@@ -284,7 +284,5 @@ const styles = StyleSheet.create({
 });
 
 export default AddTaskScreen;
-
-
 //I want to change the backgroud image to white instead of light purple idk why i cant change that
 
