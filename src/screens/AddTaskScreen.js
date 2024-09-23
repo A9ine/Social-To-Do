@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  modal: { eeeeeee
+  modal: {
     marginBottom: 20,
     marginHorizontal: 10,
     backgroundColor: "white",
